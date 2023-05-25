@@ -16,9 +16,15 @@ pub const Message = struct {
     /// (multi-server/federation is a non-goal)
     author: u32,
     /// message contents string
-    contents: []u8,
+    contents: []const u8,
 };
 
+/// takes a Message and returns a slice of bytes to send over the wire
 pub fn serialise_message(msg: Message) []const u8 {
     _ = msg;
+}
+
+/// takes a slice of bytes and returns a Message
+pub fn deserialise_message(buffer: []u8) Message {
+    _ = buffer;
 }
