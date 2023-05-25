@@ -1,10 +1,7 @@
 const std = @import("std");
 const net = std.net;
 
-const MsgType = enum {
-    FetchMsgs,
-    SendMsg,
-};
+const proto = @import("protocol.zig");
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
