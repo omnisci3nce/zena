@@ -1,24 +1,39 @@
 const std = @import("std");
+const net = std.net;
+
+const MsgType = enum {
+    FetchMsgs,
+    SendMsg,
+};
 
 pub fn main() !void {
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
 
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
+    // In-memory messages
+    var msgs = std.ArrayList([]u8).init(allocator);
+    _ = msgs;
 
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
+    // Socket
+    const self_addr = try net.Address.resolveIp("127.0.0.1", 3000);
+    var listener = net.StreamServer.init(.{});
+    try (&listener).listen(self_addr);
 
-    try bw.flush(); // don't forget to flush!
+    std.log.info("Listening on {}; press Ctrl-C to exit...", .{self_addr});
 }
 
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
-}
+// NOTE(omni): keeping this here in case I want to reference it.
+//
+// // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
+// std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+//
+// // stdout is for the actual output of your application, for example if you
+// // are implementing gzip, then only the compressed bytes should be sent to
+// // stdout, not any debugging messages.
+// const stdout_file = std.io.getStdOut().writer();
+// var bw = std.io.bufferedWriter(stdout_file);
+// const stdout = bw.writer();
+//
+// try stdout.print("Run `zig build test` to run the tests.\n", .{});
+//
+// try bw.flush(); // don't forget to flush!
