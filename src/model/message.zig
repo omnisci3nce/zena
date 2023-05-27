@@ -12,6 +12,7 @@ pub const Message = struct {
     contents: []const u8,
 };
 
+// TODO: implement serialise to message
 // takes a Message and returns a slice of bytes to send over the wire
 // pub fn serialise_message(msg: Message) []const u8 {
 //     _ = msg;
