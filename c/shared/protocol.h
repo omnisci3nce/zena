@@ -1,4 +1,3 @@
-#include <cstdint>
 #include <stdint.h>
 
 typedef struct message {
@@ -27,6 +26,7 @@ union cmd_payload {
 };
 
 typedef enum cmd_type {
+  // sync client with latest messages
   SyncMsgs,
   SendMsg
 } cmd_type;
