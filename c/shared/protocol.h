@@ -9,7 +9,7 @@ typedef struct message {
    * (multi-server/federation is a non-goal) */
   uint32_t author;
   /** @brief message contents string */
-  const char* contents;
+  char *contents;
 } message;
 
 struct sync_msgs {
