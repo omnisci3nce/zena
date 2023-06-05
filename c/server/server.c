@@ -1,8 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include "server.h"
 #include "state_handling.h"
 #include "../shared/protocol.h"
@@ -16,16 +14,3 @@ void server_init(server_state* s) {
   s->msg_len = 0;
 }
 
-int main() {
-  // init our server state
-  server_state server_state;
-  server_init(&server_state);
-  
-  // tcp setup
-  int listenfd;
-  /*
-  struct sockaddr_in serv_addr;
-  listenfd = socket(, int type, int protocol)
-  */
-
-}
