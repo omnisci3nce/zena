@@ -1,3 +1,6 @@
+#ifndef PROTOCOL_H
+#define PROTOCOL_H
+
 #include <stdint.h>
 
 typedef struct message {
@@ -35,3 +38,5 @@ typedef struct command {
   cmd_type type;
   union cmd_payload data;
 } command;
+
+#endif
