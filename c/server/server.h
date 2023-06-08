@@ -25,15 +25,19 @@ typedef struct channel {
 typedef struct client {
   // TODO: read buffer
   // TODO: write buffer
+  uint32_t user_id;
+  int socket_fd;
 
 } client;
+
+int remove_client();
 
 /**
  * god object containing all the global state of the server
  */
 typedef struct server_state {
   /** @brief array of file descriptors for connected client sockets */
-  int client_sock_fds[MAX_CONCURRENT_CLIENTS];
+  client clients[MAX_CONCURRENT_CLIENTS];
 
   /** channels */
   channel channels[MAX_CHANNELS];
@@ -44,6 +48,10 @@ typedef struct server_state {
   size_t msg_len;
 } server_state;
 
+// ----- Lifecycle methods
+
 void server_init(server_state* s);
+void server_shutdown();
+void server_start();
 
 #endif

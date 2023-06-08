@@ -1,10 +1,15 @@
 CC=gcc
 CFLAGS=-I.
-SRC_FILES=$(wildcard server/*.c)
+SERVER_SRC=$(wildcard server/*.c)
+SHARED_SRC=$(wildcard shared/*.c)
 
 .PHONY: server
 server: 
-	$(CC) $(SRC_FILES) server_main.c -o build/server.exe
+	$(CC) $(SERVER_SRC) $(SHARED_SRC) server_main.c -lsqlite3 -o build/server.exe
+
+.PHONY: client
+client: 
+	$(CC)  $(SERVER_SRC) $(SHARED_SRC) client_main.c -lsqlite3 -o build/client.exe
 
 clean: 
 	rm -rf build/*
