@@ -22,6 +22,12 @@ typedef struct channel {
                                     // fast access
 } channel;
 
+typedef struct client {
+  // TODO: read buffer
+  // TODO: write buffer
+
+} client;
+
 /**
  * god object containing all the global state of the server
  */
