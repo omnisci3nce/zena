@@ -1,9 +1,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include "server.h"
+#include "../server/server.h"
 #include "state_handling.h"
 #include "queries.h"
+#include "../deps/kitc/include/kitc.h"
 
 #include <sys/stat.h>
 
@@ -44,11 +45,21 @@ int main() {
 
   server_state.db = db; // give the server state a pointer to the sqlite connection
 
+  // test some db queries !
   sqlite_version(db);
 
+  // insert a new message into the db
   char *hw = "hello, world!";
   insert_msg(db, 1, 1, hw);
 
+  // fetch all msgs in the db and store in a dynamic array provided by kitc
+  kitc_darray *messages = kitc_darray_new(sizeof(message), 2);
+  int msg_len = get_all_msgs(db, messages);
+  printf("number of messages in db: %d\n", msg_len);
+  for (int i; i < msg_len; ++i) {
+    message *msg = &((message *)messages->data)[i];
+    printf("msg id: %d msg content: %s\n", msg->id, msg->contents);
+  }
 
   // tcp setup
   // based on https://gist.github.com/browny/5211329

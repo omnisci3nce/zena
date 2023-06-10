@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "sqlite3.h"
+#include "kitc.h"
 
 typedef enum query_result {
   Success,
@@ -14,7 +15,7 @@ typedef enum query_result {
 
 query_result sqlite_version(sqlite3 *db);
 
-query_result get_msgs_for_channel(uint32_t channel_id, uint32_t from, uint32_t to);
+int get_all_msgs(sqlite3 *db, kitc_darray *msg_array);
 query_result insert_msg(sqlite3 *db, uint32_t channel_id, uint32_t author_id, char *content);
 
 #endif
