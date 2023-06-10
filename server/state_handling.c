@@ -6,7 +6,7 @@
 uint32_t oldest_msg_id_in_cache(channel *ch) {};
 
 void handle_packet(server_state *s, packet *p) {
-  switch (p->type) {
+  switch (p->header.type) {
     case SYNC_MSGS: {
       channel ch = s->channels[p->data.sync_msgs.channel_id];
       uint32_t client_last_msg = p->data.sync_msgs.latest_msg_id;

@@ -2,6 +2,7 @@
 #define PROTOCOL_H
 
 #include <stdint.h>
+#include <assert.h>
 #include "model.h"
 
 struct sync_msgs {
@@ -32,8 +33,13 @@ typedef enum opcode {
   AUTH = 0xA0
 } opcode;
 
+// for now this will just use bytes but later we might use some bitfields 
+typedef struct packet_header {
+  enum opcode type;
+} packet_header;
+
 typedef struct packet {
-  opcode type;
+  packet_header header;
   union packet_payload data;
 } packet;
 

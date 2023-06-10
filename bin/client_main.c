@@ -1,4 +1,4 @@
-#include "shared/protocol.h"
+#include "../shared/protocol.h"
 #include <stdio.h>
 #include <stdint.h>
 
@@ -10,6 +10,16 @@
 #include <unistd.h>
 
 int main() {
+  /* overall control flow of initial connection and application usage */
+
+  // struct for server connection details
+  // open socket and connect to server
+  // (future) negotiate TLS
+  // client sends STARTUP packet -> server sets up internal state and responds with ACK
+  // client sends AUTH -> server creates session key and responds AUTH_ACK / AUTH_NACK
+
+  // -----------------------------
+
   // init client state
   uint8_t write_buf[1024];
   int len = 0;
@@ -18,7 +28,7 @@ int main() {
   const char *passwd = "my_cool_password";
 
   packet p = {
-    .type = AUTH,
+    .header = { .type = AUTH },
     .data.authenticate = {
       .user_id = my_id,
       .password = passwd

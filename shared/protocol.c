@@ -4,7 +4,7 @@
 
 int serialise_packet(packet *p, uint8_t *output_buf) {
 
-  switch (p->type) {
+  switch (p->header.type) {
     case AUTH: {
       // pack u32 p->data.authenticate.user_id
       memcpy( output_buf,&p->data.authenticate.user_id, 4);

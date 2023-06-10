@@ -1,7 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include "server/server.h"
+#include "../server/server.h"
+#include "../server/state_handling.h"
+#include "../shared/queries.h"
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -25,7 +27,7 @@ int main() {
   sqlite3 *db;
   sqlite3_stmt *res;
 
-  int rc = sqlite3_open(":memory:", &db);
+  int rc = sqlite3_open("db/db.sqlite", &db);
 
    if (rc != SQLITE_OK) {
         
@@ -52,7 +54,11 @@ int main() {
     }
     
     sqlite3_finalize(res);
+
+  char *hw = "hello, world!";
+  insert_msg(db, 1, 1, hw);
     sqlite3_close(db);
+
 
   // tcp setup
   // based on https://gist.github.com/browny/5211329
