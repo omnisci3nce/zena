@@ -15,7 +15,7 @@
 #include <unistd.h>
 
 // temporary
-#include <sqlite3.h>
+#include "sqlite3.h"
 
 int main() {
   // init our server state

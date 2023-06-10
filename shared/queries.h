@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <sqlite3.h>
+#include "sqlite3.h"
 
 typedef enum query_result {
   Success,

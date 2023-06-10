@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <sqlite3.h>
+#include "sqlite3.h"
 #include "queries.h"
 
 const char* get_all_channels_query = "SELECT * from channels;";

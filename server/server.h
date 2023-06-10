@@ -1,7 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <sqlite3.h>
+#include "sqlite3.h"
 #include <stdint.h>
 #include <stddef.h>
 #include "../shared/protocol.h"
