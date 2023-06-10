@@ -2,6 +2,12 @@
 
 lightweight messenging (as in chat) server and client implementation
 
+## cloning
+
+`git clone --recurse-submodules https://github.com/AutodidactsHaven/kitc.git`
+
+## goals
+
 Goals:
 * ststst
 * ststst
