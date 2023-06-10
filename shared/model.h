@@ -10,6 +10,7 @@ typedef struct message {
   /** @brief author ID - this is unique across a single server instance.
    * (multi-server/federation is a non-goal) */
   uint32_t author;
+  uint32_t channel;
   /** @brief message contents string */
   char *contents;
 } message;

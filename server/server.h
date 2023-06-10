@@ -1,6 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <sqlite3.h>
 #include <stdint.h>
 #include <stddef.h>
 #include "../shared/protocol.h"
@@ -13,6 +14,7 @@ typedef struct channel_options {
   // TODO: things like whether mentions are allowed, visibilty, etc
 } channel_options;
 
+// in-memory representation of channel
 typedef struct channel {
   char *name;
   channel_options options;
@@ -36,6 +38,8 @@ int remove_client();
  * god object containing all the global state of the server
  */
 typedef struct server_state {
+  sqlite3 *db;
+
   /** @brief array of file descriptors for connected client sockets */
   client clients[MAX_CONCURRENT_CLIENTS];
 
@@ -50,8 +54,8 @@ typedef struct server_state {
 
 // ----- Lifecycle methods
 
-void server_init(server_state* s);
-void server_shutdown();
-void server_start();
+void server_init(server_state *s);
+void server_shutdown(server_state *s);
+void server_start(server_state *s);
 
 #endif

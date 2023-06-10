@@ -42,3 +42,25 @@ query_result insert_msg(sqlite3 *db, uint32_t channel_id, uint32_t author_id, ch
   sqlite3_finalize(stmt);
   return Success;
 }
+
+query_result sqlite_version(sqlite3 *db) {
+  int rc = 0;
+  int idx = -1;
+  sqlite3_stmt *res;
+  rc = sqlite3_prepare_v2(db, "SELECT SQLITE_VERSION()", -1, &res, 0);    
+    
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Failed to fetch data: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return 1;
+    }    
+    
+    rc = sqlite3_step(res);
+    
+    if (rc == SQLITE_ROW) {
+        printf("sqlite version: %s\n", sqlite3_column_text(res, 0));
+    }
+    
+    sqlite3_finalize(res);
+    return Success;
+  }

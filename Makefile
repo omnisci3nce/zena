@@ -1,6 +1,6 @@
 CC=gcc
 
-INC_DIRS=-I. -I./server/
+INC_DIRS=-I. -I./server/ -I./shared/ -I./deps/sqlite/
 
 BUILD_DIR=build/
 SERVER_SRC=$(wildcard server/*.c)
@@ -20,7 +20,13 @@ SERVER_OBJS = server.o
 SHARED_OBJS = protocol.o
 
 server: $(SERVER_OBJS) $(SHARED_OBJS)
-	$(CC) $(SERVER_SRC) $(SHARED_SRC) $(INC_DIRS) bin/server_main.c -lsqlite3 -o build/server.exe
+	$(CC) $(SERVER_SRC) $(SHARED_SRC) $(INC_DIRS) build/sqlite3.o bin/server_main.c -o build/server.exe
+
+.PHONY: sqlite
+sqlite: sqlite3.o
+
+sqlite3.o: deps/sqlite/sqlite3.c
+	$(CC) deps/sqlite/sqlite3.c -c -o build/sqlite3.o
 
 protocol.o: shared/protocol.h shared/protocol.c
 	$(CC) -c shared/protocol.c -o build/$@

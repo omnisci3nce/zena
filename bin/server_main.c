@@ -1,10 +1,13 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include "../server/server.h"
-#include "../server/state_handling.h"
-#include "../shared/queries.h"
+#include "server.h"
+#include "state_handling.h"
+#include "queries.h"
 
+#include <sys/stat.h>
+
+// networking
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h> // sockaddr_in
@@ -13,7 +16,6 @@
 
 // temporary
 #include <sqlite3.h>
-
 
 int main() {
   // init our server state
@@ -27,37 +29,25 @@ int main() {
   sqlite3 *db;
   sqlite3_stmt *res;
 
-  int rc = sqlite3_open("db/db.sqlite", &db);
+  const char *db_path = "db/db.sqlite";
 
+  struct stat st;
+  stat(db_path, &st);
+  printf("db size: %ld bytes\n", st.st_size);
+
+  int rc = sqlite3_open(db_path, &db);
    if (rc != SQLITE_OK) {
-        
         fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
-        
         return 1;
     }
 
-  rc = sqlite3_prepare_v2(db, "SELECT SQLITE_VERSION()", -1, &res, 0);    
-    
-    if (rc != SQLITE_OK) {
-        
-        fprintf(stderr, "Failed to fetch data: %s\n", sqlite3_errmsg(db));
-        sqlite3_close(db);
-        
-        return 1;
-    }    
-    
-    rc = sqlite3_step(res);
-    
-    if (rc == SQLITE_ROW) {
-        printf("%s\n", sqlite3_column_text(res, 0));
-    }
-    
-    sqlite3_finalize(res);
+  server_state.db = db; // give the server state a pointer to the sqlite connection
+
+  sqlite_version(db);
 
   char *hw = "hello, world!";
   insert_msg(db, 1, 1, hw);
-    sqlite3_close(db);
 
 
   // tcp setup
@@ -94,4 +84,7 @@ int main() {
 		close(connfd);
 		sleep(1);
 	}
+
+  sqlite3_close(db);
+  server_shutdown(&server_state);
 }

@@ -2,6 +2,7 @@
 #include "server.h"
 #include "../shared/protocol.h"
 #include "state_handling.h"
+#include "../shared/queries.h"
 
 uint32_t oldest_msg_id_in_cache(channel *ch) {};
 
@@ -33,6 +34,16 @@ void handle_packet(server_state *s, packet *p) {
     }
     case SEND_MSG: {
       // when server receives a SendMsg we can add it to the database
+
+      printf("inserting new message into the database\n");
+      message msg = p->data.send_msg.msg;
+
+      // insert into database
+      insert_msg(s->db, msg.channel, msg.author, msg.contents);
+
+      // broadcast msg to all connected clients
+      // TODO: broadcast_msg(); // this will queue it to be written to each clients write buffer
+
       break;
     }
     default:
