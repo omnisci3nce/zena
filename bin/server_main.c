@@ -54,7 +54,7 @@ int main() {
 
   // fetch all msgs in the db and store in a dynamic array provided by kitc
   kitc_darray *messages = kitc_darray_new(sizeof(message), 2);
-  int msg_len = get_all_msgs(db, messages);
+  int msg_len = get_msgs_in_channel(db, 1, NULL, NULL, messages);
   printf("number of messages in db: %d\n", msg_len);
   for (int i; i < msg_len; ++i) {
     message *msg = &((message *)messages->data)[i];

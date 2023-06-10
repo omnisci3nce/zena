@@ -8,7 +8,11 @@
 #include "protocol.h"
 #include "../deps/kitc/include/kitc.h"
 
-const char* get_all_channels_query = "SELECT msg_id, content FROM messages;";
+#define ROW_UPPER_LIMIT 10000
+
+const char* get_all_channels_query =
+  "SELECT msg_id, content FROM messages "
+  "WHERE channel_id = ?;";
 const char* insert_message_query =
   "INSERT INTO messages (author_id, channel_id, content) "
   "VALUES ( ?, ?, ?);";
@@ -17,19 +21,21 @@ const char* insert_message_query =
  * @param from get messages after this message id. set to NULL to get from first
  * @param to get messages up until this message id. set to NULL to get until latest
 */
-int get_all_msgs(sqlite3 *db, kitc_darray *msg_array) {
+int get_msgs_in_channel(sqlite3 *db, uint32_t channel_id, uint32_t from, uint32_t to, kitc_darray *msg_array) {
   int rc;
   sqlite3_stmt *res;
+  message temp_msg;
+
   rc = sqlite3_prepare_v2(db, get_all_channels_query, -1, &res, 0);
   if (rc != SQLITE_OK) {
     fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
     sqlite3_close(db);
   }
-  message temp_msg;
-  int limit = 100000;
+  // bind parameters
+  sqlite3_bind_int(res, 1, channel_id);
+
   int i = 0;
-  int len = 0;
-  while (i < limit) {
+  while (i < ROW_UPPER_LIMIT) {
     int step = sqlite3_step(res);
     if (step == SQLITE_DONE) {
       break;
@@ -37,16 +43,14 @@ int get_all_msgs(sqlite3 *db, kitc_darray *msg_array) {
       temp_msg.id = sqlite3_column_int(res, 0);   
       const char* msg_contents = sqlite3_column_text(res, 1);
       temp_msg.contents = malloc(strlen(msg_contents) + 1);
-      strcpy(temp_msg.contents, msg_contents); // name will be automatically freed next sqlite3_step so we need to copy it out
+      strcpy(temp_msg.contents, msg_contents); // contents will be automatically freed next sqlite3_step so we need to copy it out
       kitc_darray_push(msg_array, &temp_msg);
-      
       i++;
     }
   }
-  len = i;
   // Cleanup
   sqlite3_finalize(res);
-  return len;
+  return i;
 }
 
 /*
