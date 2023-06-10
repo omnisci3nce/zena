@@ -11,7 +11,7 @@
 #define ROW_UPPER_LIMIT 10000
 
 const char* get_all_channels_query =
-  "SELECT msg_id, content FROM messages "
+  "SELECT msg_id, channel_id, author_id, content FROM messages "
   "WHERE channel_id = ?;";
 const char* insert_message_query =
   "INSERT INTO messages (author_id, channel_id, content) "
@@ -41,7 +41,9 @@ int get_msgs_in_channel(sqlite3 *db, uint32_t channel_id, uint32_t from, uint32_
       break;
     } else {
       temp_msg.id = sqlite3_column_int(res, 0);   
-      const char* msg_contents = sqlite3_column_text(res, 1);
+      temp_msg.channel = sqlite3_column_int(res, 1);   
+      temp_msg.author = sqlite3_column_int(res, 2);   
+      const char* msg_contents = sqlite3_column_text(res, 3);
       temp_msg.contents = malloc(strlen(msg_contents) + 1);
       strcpy(temp_msg.contents, msg_contents); // contents will be automatically freed next sqlite3_step so we need to copy it out
       kitc_darray_push(msg_array, &temp_msg);

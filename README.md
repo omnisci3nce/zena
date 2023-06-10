@@ -6,6 +6,11 @@ lightweight messenging (as in chat) server and client implementation
 
 `git clone --recurse-submodules https://github.com/AutodidactsHaven/kitc.git`
 
+contributing
+
+I've been using the [dbmate](https://github.com/amacneil/dbmate) utility for running
+database migrations.
+
 ## goals
 
 Goals:
