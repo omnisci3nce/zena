@@ -1,16 +1,16 @@
-#include "../shared/protocol.h"
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h> // sockaddr_in
-#include <arpa/inet.h> // inet_addr
+#include <arpa/inet.h>   // inet_addr
+#include <netinet/in.h>  // sockaddr_in
 #include <poll.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
 
+#include "../shared/protocol.h"
 #include "./state_handling.h"
 #include "state.h"
 
@@ -31,13 +31,8 @@ int main() {
   int len = 0;
 
   const char *helloworld = "Hello, World!";
-  packet p = {
-    .header = { .type = AUTH },
-    .data.authenticate = {
-      .user_id = 1,
-      .password = helloworld
-    }
-  };
+  packet p = {.header = {.type = AUTH},
+              .data.authenticate = {.user_id = 1, .password = helloworld}};
 
   len = serialise_packet(&p, write_buf);
 
@@ -47,33 +42,45 @@ int main() {
 
   sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   server.sin_addr.s_addr = inet_addr("127.0.0.1");
-	server.sin_family = AF_INET;
-	server.sin_port = htons( 5000 );
+  server.sin_family = AF_INET;
+  server.sin_port = htons(5000);
 
-  struct pollfd pfds[1]; // More if you want to monitor more
-    pfds[0].fd = sockfd;
-    pfds[0].events = POLLIN; // Tell me when ready to read
-  
+  struct pollfd pfds[1];  // More if you want to monitor more
+  pfds[0].fd = sockfd;
+  pfds[0].events = POLLIN;  // Tell me when ready to read
+
   char buf[1024];
   // connect
-	if (connect(sockfd , (struct sockaddr *)&server , sizeof(server)) < 0)
-	{
-		perror("connect failed. Error");
-		return 1;
-	}
+  if (connect(sockfd, (struct sockaddr *)&server, sizeof(server)) < 0) {
+    perror("connect failed. Error");
+    return 1;
+  }
 
   printf("packet len %d\n", len);
   for (int i = 0; i < len; i++) {
     printf("%d ", write_buf[i]);
   }
-	
-	puts("\nConnected");
+
+  puts("\nConnected");
   // send packet from write buf
-  send(sockfd, write_buf, len, 0);
-  printf("sent MSG packet\n");
+  int sent = send(sockfd, write_buf, len, 0);
+  printf("sent AUTH packet %d bytes got sent\n", sent);
+
+  memset(&p, 0, sizeof(packet));
+
+  p.header.type = MSG;
+  message m = {.id = 1, .author = 1, .channel = 1, .contents = helloworld};
+  p.data.send_msg.msg = m;
+  len = serialise_packet(&p, write_buf);
+  printf("packet len %d\n", len);
+  for (int i = 0; i < len; i++) {
+    printf("%d ", write_buf[i]);
+  }
+  sleep(1);
+  sent = send(sockfd, write_buf, len, 0);
+  printf("sent MSG packet %d bytes got sent\n", sent);
 
   while (1) {
-
     int poll_count = poll(pfds, 1, -1);
     if (poll_count == -1) {
       perror("poll");
@@ -81,30 +88,29 @@ int main() {
     }
 
     if (pfds[0].revents & POLLIN) {
-          int nbytes = recv(sockfd, buf, sizeof buf, 0);
-          if (nbytes <= 0) {
-            // Got error or connection closed by client
-            if (nbytes == 0) {
-              // Connection closed
-              printf("pollserver: socket hung up\n");
-            } else {
-              perror("recv");
-            }
+      int nbytes = recv(sockfd, buf, sizeof buf, 0);
+      if (nbytes <= 0) {
+        // Got error or connection closed by client
+        if (nbytes == 0) {
+          // Connection closed
+          printf("pollserver: socket hung up\n");
+        } else {
+          perror("recv");
+        }
 
-            close(sockfd);  // Bye!
+        close(sockfd);  // Bye!
         break;
 
-          } else {
-            printf("Received %d bytes from server\n%s\n", nbytes, buf);
-        
-            packet p;
-            uint8_t buffer[1024];
-            deserialise_packet(buf, &p);
-            client_handle_packet(&client, &p);
+      } else {
+        printf("Received %d bytes from server\n%s\n", nbytes, buf);
+
+        packet p;
+        uint8_t buffer[1024];
+        deserialise_packet(buf, &p);
+        client_handle_packet(&client, &p);
       }
     }
-
   }
-  
+
   return 0;
 }

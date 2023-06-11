@@ -118,6 +118,9 @@ query_result get_user(sqlite3 *db, uint32_t user_id, user *user) {
   int rc;
   sqlite3_stmt *res;
   rc = sqlite3_prepare_v2(db, query, -1, &res, 0);
+  if (rc != SQLITE_OK) {
+    fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
+  }
   printf("user id %d\n", user_id);
 
   rc = sqlite3_bind_int(res, 1, user_id);
@@ -133,6 +136,28 @@ query_result get_user(sqlite3 *db, uint32_t user_id, user *user) {
   } else {
     return Q_DB_ERROR;
   }
+
+  sqlite3_finalize(res);
+  return Q_SUCCESS;
+}
+
+query_result update_presence(sqlite3 *db, uint32_t user_id, bool status) {
+  static const char *query =
+      "INSERT INTO presence(user_id, is_online, last_seen_at) "
+      "VALUES (?, ?, UNIXEPOCH()) "
+      "ON CONFLICT(user_id) DO UPDATE SET "
+      "is_online=is_online, last_seen_at=UNIXEPOCH();";
+
+  int rc;
+  sqlite3_stmt *res;
+  rc = sqlite3_prepare_v2(db, query, -1, &res, 0);
+  if (rc != SQLITE_OK) {
+    fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
+  }
+
+  rc = sqlite3_bind_int(res, 1, user_id);
+  rc = sqlite3_bind_int(res, 2, (int)status);
+  int step = sqlite3_step(res);
 
   sqlite3_finalize(res);
   return Q_SUCCESS;

@@ -10,7 +10,7 @@
 
 int serialise_packet(packet *p, uint8_t *output_buf) {
   uint32_t current_len = 0;
-  uint32_t op = AUTH;
+  uint32_t op = p->header.type;
   memcpy(output_buf, &op, 4);
   current_len += 4;
   // skip length because we fill it in at the end after computing packet size

@@ -1,11 +1,11 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include "../server/server.h"
-#include "state_handling.h"
-#include "queries.h"
-#include "../deps/kitc/include/kitc.h"
 
+#include "../deps/kitc/include/kitc.h"
+#include "../server/server.h"
+#include "queries.h"
+#include "state_handling.h"
 
 // temporary
 #include "sqlite3.h"
@@ -25,14 +25,13 @@ int main() {
   printf("number of messages in db: %d\n", msg_len);
   for (int i; i < msg_len; ++i) {
     message *msg = &((message *)messages->data)[i];
-    printf("msg: %d channel: %d author: %d msg content: %s\n", msg->id, msg->channel, msg->author, msg->contents);
+    printf("msg: %d channel: %d author: %d msg content: %s\n", msg->id, msg->channel, msg->author,
+           msg->contents);
   }
-
 
   server_start(&server);
 
   // cleanup server
   sqlite3_close(server.db);
-  //server_shutdown(&server);
+  // server_shutdown(&server);
 }
-

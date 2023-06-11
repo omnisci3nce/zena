@@ -29,6 +29,14 @@ void handle_packet(server_state *s, client *c, packet *p) {
       // broadcast msg to all connected clients
       broadcast_msg(s, msg);
 
+      // finally, we will update the presence for the author
+      user user;
+      q_res = get_user(s->db, msg.author, &user);
+      if (q_res == Q_SUCCESS) {
+        printf("updating presence of user\n");
+        update_presence(s->db, user.id, true);
+      }
+
       free(msg.contents);
       break;
     }

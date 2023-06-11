@@ -46,4 +46,4 @@ clean:
 
 .PHONY:
 format:
-	clang-format -i $(SERVER_SRC) $(SHARED_SRC) $(CLIENT_SRC)
+	clang-format -i $(SERVER_SRC) $(SHARED_SRC) $(CLIENT_SRC) bin/*.c
