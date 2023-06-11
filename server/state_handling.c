@@ -39,6 +39,7 @@ void handle_packet(server_state *s, packet *p) {
 
       printf("inserting new message into the database\n");
       message msg = p->data.send_msg.msg;
+      printf("msg contents: %s\n", msg.contents);
 
       // insert into database
       insert_msg(s->db, msg.channel, msg.author, msg.contents);

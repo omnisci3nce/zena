@@ -24,10 +24,11 @@ void *get_in_addr(struct sockaddr *sa) {
 int create_listen_socket() {
   // based on https://gist.github.com/browny/5211329
   int listenfd;
+  int yes = 1;
   struct sockaddr_in serv_addr;
   listenfd = socket(AF_INET, SOCK_STREAM, 0);
 
-  setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, 1, sizeof(int));
+  setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);

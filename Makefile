@@ -17,6 +17,7 @@ CFLAGS= -g -Wall -Wextra -Werror -Wundef -Wdouble-promotion
 
 CFILES=protocol.c server.c
 SERVER_OBJS = server.o
+# SERVER_OBJS = client.o
 SHARED_OBJS = protocol.o
 
 server: $(SERVER_OBJS) $(SHARED_OBJS)
@@ -37,9 +38,8 @@ server.o: server/server.h server/server.c
 # %.o:server/%.c
 # 	$(CC) $(CFLAGS) -c -o $@ $^ # @ = whats on LHS of rule  ^ = whats on RHS of rule
 
-# .PHONY: client
-# client: 
-# 	$(CC)  $(SERVER_SRC) $(SHARED_SRC) client_main.c -lsqlite3 -o build/client.exe
+client:  $(SHARED_OBJS)
+	$(CC) $(CLIENT_SRC) $(SHARED_SRC) $(INC_DIRS) build/sqlite3.o bin/client_main.c -o build/client.exe
 
 clean: 
 	rm -rf build/*

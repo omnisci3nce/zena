@@ -65,6 +65,15 @@ bool add_to_pfds(server_state *s, int newfd) {
   return true;
 }
 
+client *get_client(server_state *s, int fd) {
+  for (int i; i < MAX_CONCURRENT_CLIENTS; i++) {
+    if (s->clients[i].socket_fd == fd) {
+      return &s->clients[i];
+    }
+  }
+  return NULL;
+}
+
 void server_start(server_state *s) {
   int listenfd = create_listen_socket();
   s->fds[0].fd = listenfd;
@@ -74,7 +83,7 @@ void server_start(server_state *s) {
   char remoteIP[INET6_ADDRSTRLEN];
   char buf[1024];  // Buffer for client data
   while (1) {
-    printf("starting poll()\n");
+    printf("poll()\n");
     int poll_count = poll(s->fds, s->fd_count, -1);
     if (poll_count == -1) {
       perror("poll");
@@ -112,6 +121,7 @@ void server_start(server_state *s) {
           int sender_fd = s->fds[i].fd;
 
           // lookup associated client struct for this socket fd
+          client *client = get_client(s, sender_fd);
 
           if (nbytes <= 0) {
             // Got error or connection closed by client
@@ -130,17 +140,24 @@ void server_start(server_state *s) {
           } else {
             // We got some good data from a client
             printf("Received %d bytes from socket %d\n%s\n", nbytes, s->fds[i].fd, buf);
-            for (int j = 0; j < s->fd_count; j++) {
-              // Send to everyone!
-              int dest_fd = s->fds[j].fd;
 
-              // Except the listener and ourselves
-              if (dest_fd != listenfd && dest_fd != sender_fd) {
-                if (send(dest_fd, buf, nbytes, 0) == -1) {
-                  perror("send");
-                }
-              }
-            }
+            packet p;
+            uint8_t buffer[1024];
+            deserialise_packet(buf, &p);
+            handle_packet(s, &p);
+            // we would expect the above to insert a new message
+
+            // for (int j = 0; j < s->fd_count; j++) {
+            //   // Send to everyone!
+            //   int dest_fd = s->fds[j].fd;
+            //
+            //   // Except the listener and ourselves
+            //   if (dest_fd != listenfd && dest_fd != sender_fd) {
+            //     if (send(dest_fd, buf, nbytes, 0) == -1) {
+            //       perror("send");
+            //     }
+            //   }
+            // }
           }
         }  // END handle data from client
       }    // END got ready-to-read from poll()

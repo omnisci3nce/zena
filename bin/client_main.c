@@ -26,12 +26,17 @@ int main() {
 
   uint32_t my_id = 4;
   const char *passwd = "my_cool_password";
+  const char *helloworld = "helloworld";
 
   packet p = {
-    .header = { .type = AUTH },
-    .data.authenticate = {
-      .user_id = my_id,
-      .password = passwd
+    .header = { .type = SEND_MSG },
+    .data.send_msg = {
+      .msg = {
+        .id = 1,
+        .author = 1,
+        .channel = 1,
+        .contents = helloworld
+      }
     }
   };
 
@@ -44,7 +49,7 @@ int main() {
   sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   server.sin_addr.s_addr = inet_addr("127.0.0.1");
 	server.sin_family = AF_INET;
-	server.sin_port = htons( 8888 );
+	server.sin_port = htons( 5000 );
 
   // connect
 	if (connect(sockfd , (struct sockaddr *)&server , sizeof(server)) < 0)
@@ -61,7 +66,8 @@ int main() {
 	puts("\nConnected");
   // send packet from write buf
   send(sockfd, write_buf, len, 0);
-	printf("Sent packet User ID: %d Password: %s\n", p.data.authenticate.user_id, p.data.authenticate.password);
+	//printf("Sent packet User ID: %d Password: %s\n", p.data.authenticate.user_id, p.data.authenticate.password);
+  printf("sent SEND_MSG packet\n");
   
   return 0;
 }

@@ -27,14 +27,12 @@ typedef struct channel {
 } channel;
 
 typedef struct client {
-  // TODO: read buffer
-  // TODO: write buffer
   uint32_t user_id;
   int socket_fd;
-
+  // TODO: read buffer
+  // TODO: write buffer
 } client;
 
-int remove_client();
 
 /**
  * god object containing all the global state of the server
@@ -58,6 +56,11 @@ typedef struct server_state {
 } server_state;
 
 bool add_to_pfds(server_state *s, int newfd);
+
+// gets the client for the corresponding socket file descriptor
+client* get_client(server_state *s, int);
+int remove_client();
+
 // ----- Lifecycle methods
 
 void server_init(server_state *s);
