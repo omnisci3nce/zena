@@ -13,8 +13,8 @@ int serialise_packet(packet *p, uint8_t *output_buf) {
   uint32_t op = SEND_MSG;
   memcpy(output_buf, &op, 4);
   current_len += 4;
-  //memcpy(output_buf, &len, 4);
-  // length
+  // memcpy(output_buf, &len, 4);
+  //  length
   current_len += 4;
 
   switch (p->header.type) {
@@ -43,7 +43,7 @@ int serialise_packet(packet *p, uint8_t *output_buf) {
       memcpy(output_buf + current_len, &str_len, 4);
       current_len += 4;
       // pack string
-      strcpy( output_buf + current_len, p->data.send_msg.msg.contents);
+      strcpy(output_buf + current_len, p->data.send_msg.msg.contents);
       current_len += str_len + 1;
       break;
     }
@@ -73,10 +73,10 @@ int deserialise_packet(uint8_t *data_buffer, packet *p) {
       // malloc a string
       uint32_t contents_len = unpack_u32(&current_ptr);
       printf("contents len: %d\n", contents_len);
-      char *contents = malloc((contents_len) * sizeof(char)); // + 1 for '\0' terminator
+      char *contents = malloc((contents_len) * sizeof(char));  // + 1 for '\0' terminator
       strcpy(contents, current_ptr);
-      //contents[contents_len] = '\0';
-      p->data.send_msg.msg.contents = contents; // this packet now owns this memory
+      // contents[contents_len] = '\0';
+      p->data.send_msg.msg.contents = contents;  // this packet now owns this memory
       break;
     default:
       break;

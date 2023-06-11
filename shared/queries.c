@@ -65,7 +65,7 @@ int get_msgs_in_channel(sqlite3 *db, uint32_t channel_id, uint32_t from, uint32_
 
 query_result insert_msg(sqlite3 *db, uint32_t channel_id, uint32_t author_id, char *content) {
   // TODO: make this a 'trace' log
-  //printf("inserting message into database\n");
+  // printf("inserting message into database\n");
   int rc = 0;
   int idx = -1;
   sqlite3_stmt *stmt;
