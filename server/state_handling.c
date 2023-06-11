@@ -1,6 +1,7 @@
 #include "state_handling.h"
 
 #include <stdio.h>
+#include <sys/socket.h>
 
 #include "../shared/protocol.h"
 #include "../shared/queries.h"
@@ -8,7 +9,7 @@
 
 uint32_t oldest_msg_id_in_cache(channel *ch){};
 
-void handle_packet(server_state *s, packet *p) {
+void handle_packet(server_state *s, client *c, packet *p) {
   switch (p->header.type) {
     case SYNC_MSGS: {
       channel ch = s->channels[p->data.sync_msgs.channel_id];
@@ -42,10 +43,26 @@ void handle_packet(server_state *s, packet *p) {
       printf("msg contents: %s\n", msg.contents);
 
       // insert into database
-      insert_msg(s->db, msg.channel, msg.author, msg.contents);
+      uint32_t id = (uint32_t)insert_msg(s->db, msg.channel, msg.author, msg.contents);
+      p->data.send_msg.msg.id = id;
+      uint8_t buf[1024];
+      int len = serialise_packet(p, buf);
+      printf("len: %d\n", len);
 
       // broadcast msg to all connected clients
       // TODO: broadcast_msg(); // this will queue it to be written to each clients write buffer
+      for (int j = 0; j < s->clients_len; j++) {
+        // Send to everyone!
+        int dest_fd = s->clients[j].socket_fd;
+
+        // Except the listener and ourselves
+        if (dest_fd != s->fds[0].fd && dest_fd != c->socket_fd) {
+          if (send(dest_fd, buf, len, 0) == -1) {
+            perror("send");
+          }
+        }
+      }
+      printf("here3\n");
 
       break;
     }

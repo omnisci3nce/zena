@@ -16,6 +16,7 @@ int serialise_packet(packet *p, uint8_t *output_buf) {
   // memcpy(output_buf, &len, 4);
   //  length
   current_len += 4;
+  printf("here\n");
 
   switch (p->header.type) {
     case AUTH: {
@@ -51,6 +52,7 @@ int serialise_packet(packet *p, uint8_t *output_buf) {
       return -1;
   }
   memcpy(output_buf + 4, &current_len, 4);
+  printf("here2\n");
   return current_len;
 }
 

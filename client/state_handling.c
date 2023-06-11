@@ -1,8 +1,8 @@
 #include <stdio.h>
-//#include "client.h"
+// #include "client.h"
 #include "../shared/protocol.h"
-#include "state_handling.h"
 #include "../shared/queries.h"
+#include "state_handling.h"
 
 struct client_state {};
 
@@ -14,7 +14,7 @@ void handle_packet(struct client_state *c, packet *p) {
     case SEND_MSG: {
       // client received a message
       message msg = p->data.send_msg.msg;
-      
+
       // push message into in-memory cache
       // pop oldest message
       // flag data model as updated for rendering

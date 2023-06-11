@@ -42,6 +42,7 @@ typedef struct server_state {
 
   /** @brief array of file descriptors for connected client sockets */
   client clients[MAX_CONCURRENT_CLIENTS];
+  int clients_len;
   // sockets
   struct pollfd fds[MAX_CONCURRENT_CLIENTS + 1];
   int fd_count;

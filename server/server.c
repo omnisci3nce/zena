@@ -24,6 +24,7 @@ void server_init(server_state *s) {
   printf("init server state\n");
   // initialise struct data
   memset(&s->clients, 0, MAX_CONCURRENT_CLIENTS * sizeof(client));
+  s->clients_len = 0;
   memset(&s->channels, 0, MAX_CHANNELS * sizeof(channel));
   s->ch_len = 0;
   memset(&s->messages, 0, 1024 * sizeof(message));
@@ -62,15 +63,24 @@ bool add_to_pfds(server_state *s, int newfd) {
   s->fds[s->fd_count].fd = newfd;
   s->fds[s->fd_count].events = POLLIN;
   s->fd_count++;
+
+  s->clients[s->clients_len].user_id = 1;
+  s->clients[s->clients_len].socket_fd = newfd;
+  s->clients_len += 1;
+
+  printf("set client for %d sock\n", newfd);
   return true;
 }
 
 client *get_client(server_state *s, int fd) {
-  for (int i; i < MAX_CONCURRENT_CLIENTS; i++) {
+  printf("looking for client with socket fd %d\n", fd);
+  for (int i = 0; i < s->clients_len; i++) {
     if (s->clients[i].socket_fd == fd) {
+      printf("found client\n");
       return &s->clients[i];
     }
   }
+  printf("couldnt find one\n");
   return NULL;
 }
 
@@ -122,6 +132,7 @@ void server_start(server_state *s) {
 
           // lookup associated client struct for this socket fd
           client *client = get_client(s, sender_fd);
+          printf("client user id %d socket %d\n", client->user_id, client->socket_fd);
 
           if (nbytes <= 0) {
             // Got error or connection closed by client
@@ -144,7 +155,7 @@ void server_start(server_state *s) {
             packet p;
             uint8_t buffer[1024];
             deserialise_packet(buf, &p);
-            handle_packet(s, &p);
+            handle_packet(s, client, &p);
             // we would expect the above to insert a new message
 
             // for (int j = 0; j < s->fd_count; j++) {

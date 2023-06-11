@@ -63,7 +63,7 @@ int get_msgs_in_channel(sqlite3 *db, uint32_t channel_id, uint32_t from, uint32_
  * get_all_channels();
  */
 
-query_result insert_msg(sqlite3 *db, uint32_t channel_id, uint32_t author_id, char *content) {
+int insert_msg(sqlite3 *db, uint32_t channel_id, uint32_t author_id, char *content) {
   // TODO: make this a 'trace' log
   // printf("inserting message into database\n");
   int rc = 0;
@@ -83,9 +83,12 @@ query_result insert_msg(sqlite3 *db, uint32_t channel_id, uint32_t author_id, ch
   sqlite3_bind_text(stmt, 3, content, -1, SQLITE_STATIC);
 
   rc = sqlite3_step(stmt);
+  // TODO: error check
+
+  int last_id = sqlite3_last_insert_rowid(db);
 
   sqlite3_finalize(stmt);
-  return Success;
+  return last_id;
 }
 
 query_result sqlite_version(sqlite3 *db) {

@@ -8,6 +8,6 @@
  *  updates the server state (both data storage and the state machines associated
  *  with clients / channels)
 */
-void handle_packet(server_state *s, packet *p);
+void handle_packet(server_state *s, client *c, packet *p);
 
 #endif

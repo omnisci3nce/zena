@@ -1,11 +1,13 @@
 #include "../shared/protocol.h"
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h> // sockaddr_in
 #include <arpa/inet.h> // inet_addr
+#include <poll.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -23,10 +25,6 @@ int main() {
   // init client state
   uint8_t write_buf[1024];
   int len = 0;
-
-  uint32_t my_id = 4;
-  const char *passwd = "my_cool_password";
-  const char *helloworld = "helloworld";
 
   packet p = {
     .header = { .type = SEND_MSG },
@@ -51,6 +49,11 @@ int main() {
 	server.sin_family = AF_INET;
 	server.sin_port = htons( 5000 );
 
+  struct pollfd pfds[1]; // More if you want to monitor more
+    pfds[0].fd = sockfd;
+    pfds[0].events = POLLIN; // Tell me when ready to read
+  
+  char buf[1024];
   // connect
 	if (connect(sockfd , (struct sockaddr *)&server , sizeof(server)) < 0)
 	{
@@ -66,8 +69,41 @@ int main() {
 	puts("\nConnected");
   // send packet from write buf
   send(sockfd, write_buf, len, 0);
-	//printf("Sent packet User ID: %d Password: %s\n", p.data.authenticate.user_id, p.data.authenticate.password);
   printf("sent SEND_MSG packet\n");
+
+  while (1) {
+
+    int poll_count = poll(pfds, 1, -1);
+    if (poll_count == -1) {
+      perror("poll");
+      exit(1);
+    }
+
+    if (pfds[0].revents & POLLIN) {
+          int nbytes = recv(sockfd, buf, sizeof buf, 0);
+          if (nbytes <= 0) {
+            // Got error or connection closed by client
+            if (nbytes == 0) {
+              // Connection closed
+              printf("pollserver: socket hung up\n");
+            } else {
+              perror("recv");
+            }
+
+            close(sockfd);  // Bye!
+        break;
+
+          } else {
+            printf("Received %d bytes from server\n%s\n", nbytes, buf);
+        
+            packet p;
+            uint8_t buffer[1024];
+            deserialise_packet(buf, &p);
+            //handle_packet(s, client, &p);
+      }
+    }
+
+  }
   
   return 0;
 }
