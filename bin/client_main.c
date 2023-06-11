@@ -32,14 +32,10 @@ int main() {
 
   const char *helloworld = "Hello, World!";
   packet p = {
-    .header = { .type = MSG },
-    .data.send_msg = {
-      .msg = {
-        .id = 1,
-        .author = 1,
-        .channel = 1,
-        .contents = helloworld
-      }
+    .header = { .type = AUTH },
+    .data.authenticate = {
+      .user_id = 1,
+      .password = helloworld
     }
   };
 
@@ -104,7 +100,7 @@ int main() {
             packet p;
             uint8_t buffer[1024];
             deserialise_packet(buf, &p);
-            handle_packet(&client, &p);
+            client_handle_packet(&client, &p);
       }
     }
 

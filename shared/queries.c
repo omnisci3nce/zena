@@ -109,3 +109,31 @@ query_result sqlite_version(sqlite3 *db) {
   sqlite3_finalize(res);
   return Q_SUCCESS;
 }
+
+query_result get_user(sqlite3 *db, uint32_t user_id, user *user) {
+  static const char *query =
+      "SELECT user_id, username, password, email "
+      "FROM users "
+      "WHERE user_id = ?;";
+  int rc;
+  sqlite3_stmt *res;
+  rc = sqlite3_prepare_v2(db, query, -1, &res, 0);
+  printf("user id %d\n", user_id);
+
+  rc = sqlite3_bind_int(res, 1, user_id);
+  int step = sqlite3_step(res);
+  if (step == SQLITE_ROW) {
+    user->id = sqlite3_column_int(res, 0);
+    user->username = malloc(strlen(sqlite3_column_text(res, 1)) + 1);
+    strcpy(user->username, sqlite3_column_text(res, 1));
+    user->password = malloc(strlen(sqlite3_column_text(res, 2)) + 1);
+    strcpy(user->password, sqlite3_column_text(res, 2));
+    user->email = malloc(strlen(sqlite3_column_text(res, 3)) + 1);
+    strcpy(user->email, sqlite3_column_text(res, 3));
+  } else {
+    return Q_DB_ERROR;
+  }
+
+  sqlite3_finalize(res);
+  return Q_SUCCESS;
+}

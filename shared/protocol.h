@@ -20,21 +20,25 @@ struct authenticate {
 };
 
 union packet_payload {
-    struct sync_msgs sync_msgs;
-    struct send_msg send_msg;
-    struct authenticate authenticate;
+  //struct startup startup;
+  struct sync_msgs sync_msgs;
+  struct send_msg send_msg;
+  struct authenticate authenticate;
 };
 
 typedef enum opcode {
+  AUTH = 0x01,
   MSG = 0x02,  // send a message
   SYNC_MSGS = 0x04, // sync client with latest messages
   PRESENCE = 0x06,  // update the 'presence' of a user
   HEARTBEAT = 0x90,
-  AUTH = 0xA0
+  STARTUP
 } opcode;
 
 static const char* const op_to_str[] = {
-  [MSG] = "MSG"
+  [MSG] = "MSG",
+  [AUTH] = "AUTH",
+  [STARTUP] = "STARTUP"
 };
 
 typedef struct packet_header {

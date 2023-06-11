@@ -3,7 +3,8 @@
 
 #include "../shared/protocol.h"
 #include "../shared/queries.h"
+#include "state.h"
 
-void handle_packet(struct client_state *c, packet *p);
+void client_handle_packet(client_state *c, packet *p);
 
 #endif // !CLIENT_STATE_HANDLING_H

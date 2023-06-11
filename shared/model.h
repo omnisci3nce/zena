@@ -15,4 +15,11 @@ typedef struct message {
   char *contents;
 } message;
 
+typedef struct user {
+  uint32_t id;
+  const char *username;
+  const char *password;
+  const char *email;
+} user;
+
 #endif

@@ -1,4 +1,4 @@
-#include "state_handling.h"
+#include "../client/state_handling.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +7,7 @@
 #include "../shared/queries.h"
 #include "state.h"
 
-void handle_packet(struct client_state *c, packet *p) {
+void client_handle_packet(client_state *c, packet *p) {
   switch (p->header.type) {
     case SYNC_MSGS: {
       break;

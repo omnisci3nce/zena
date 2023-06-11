@@ -15,6 +15,7 @@ CREATE TABLE users (
   -- updateable fields
   username text not null,
   email text, -- optional
+  password text not null,
 
   -- audit
   created_at integer not null default (strftime('%s', 'now')),
@@ -36,6 +37,12 @@ CREATE TABLE messages (
   -- soft delete
   deleted integer not null default 0
 );
+CREATE TABLE presence (
+  user_id       integer not null references users(user_id),
+  is_online     integer not null check (is_online in (0,1)),
+  last_seen_at  integer not null default (strftime('%s', 'now'))
+);
 -- Dbmate schema migrations
 INSERT INTO "schema_migrations" (version) VALUES
-  ('20230605102059');
+  ('20230605102059'),
+  ('20230611103026');

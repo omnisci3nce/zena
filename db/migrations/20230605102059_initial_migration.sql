@@ -17,6 +17,7 @@ create table users (
   -- updateable fields
   username text not null,
   email text, -- optional
+  password text not null,
 
   -- audit
   created_at integer not null default (strftime('%s', 'now')),
