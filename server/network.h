@@ -3,22 +3,21 @@
 
 #include <string.h>
 // networking
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <netinet/in.h>
 #include <poll.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 // Get sockaddr, IPv4 or IPv6:
-void *get_in_addr(struct sockaddr *sa)
-{
-    if (sa->sa_family == AF_INET) {
-        return &(((struct sockaddr_in*)sa)->sin_addr);
-    }
+void *get_in_addr(struct sockaddr *sa) {
+  if (sa->sa_family == AF_INET) {
+    return &(((struct sockaddr_in *)sa)->sin_addr);
+  }
 
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
+  return &(((struct sockaddr_in6 *)sa)->sin6_addr);
 }
 
 // create socked fd for the server on port 5000 and bind + listen
@@ -31,10 +30,10 @@ int create_listen_socket() {
   setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, 1, sizeof(int));
 
   serv_addr.sin_family = AF_INET;
-	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_addr.sin_port = htons(5000);
+  serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+  serv_addr.sin_port = htons(5000);
 
-  bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+  bind(listenfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
 
   listen(listenfd, 10);
   return listenfd;

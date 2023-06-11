@@ -43,3 +43,7 @@ server.o: server/server.h server/server.c
 
 clean: 
 	rm -rf build/*
+
+.PHONY:
+format:
+	clang-format -i $(SERVER_SRC) $(SHARED_SRC) $(CLIENT_SRC)
