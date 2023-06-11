@@ -3,7 +3,6 @@
 #include <string.h>
 #include "../server/server.h"
 #include "state_handling.h"
-#include "network.h"
 #include "queries.h"
 #include "../deps/kitc/include/kitc.h"
 
@@ -16,14 +15,8 @@ int main() {
   server_state server;
   server_init(&server);
 
-  char send_buf[1024];
-
   // test some db queries !
   sqlite_version(server.db);
-
-  // insert a new message into the db
-  char *hw = "hello, world!";
-  insert_msg(server.db, 1, 1, hw);
 
   // fetch all msgs in the db and store in a dynamic array provided by kitc
   kitc_darray *messages = kitc_darray_new(sizeof(message), 2);
@@ -34,11 +27,11 @@ int main() {
     printf("msg: %d channel: %d author: %d msg content: %s\n", msg->id, msg->channel, msg->author, msg->contents);
   }
 
-  // tcp setup
-  int listenfd = create_listen_socket();
 
+  server_start(&server);
 
   // cleanup server
   sqlite3_close(server.db);
-  server_shutdown(&server);
+  //server_shutdown(&server);
 }
+

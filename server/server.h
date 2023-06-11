@@ -4,7 +4,9 @@
 #include "sqlite3.h"
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include "../shared/protocol.h"
+#include <poll.h>
 
 #define MAX_CONCURRENT_CLIENTS 32
 #define MAX_CHANNELS 32
@@ -42,6 +44,9 @@ typedef struct server_state {
 
   /** @brief array of file descriptors for connected client sockets */
   client clients[MAX_CONCURRENT_CLIENTS];
+  // sockets
+  struct pollfd fds[MAX_CONCURRENT_CLIENTS + 1];
+  int fd_count;
 
   /** channels */
   channel channels[MAX_CHANNELS];
@@ -52,6 +57,7 @@ typedef struct server_state {
   size_t msg_len;
 } server_state;
 
+bool add_to_pfds(server_state *s, int newfd);
 // ----- Lifecycle methods
 
 void server_init(server_state *s);
