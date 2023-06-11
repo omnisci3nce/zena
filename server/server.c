@@ -73,14 +73,11 @@ bool add_to_pfds(server_state *s, int newfd) {
 }
 
 client *get_client(server_state *s, int fd) {
-  printf("looking for client with socket fd %d\n", fd);
   for (int i = 0; i < s->clients_len; i++) {
     if (s->clients[i].socket_fd == fd) {
-      printf("found client\n");
       return &s->clients[i];
     }
   }
-  printf("couldnt find one\n");
   return NULL;
 }
 

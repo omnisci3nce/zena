@@ -33,6 +33,10 @@ typedef enum opcode {
   AUTH = 0xA0
 } opcode;
 
+static const char* const op_to_str[] = {
+  [SEND_MSG] = "SEND_MSG"
+};
+
 // for now this will just use bytes but later we might use some bitfields 
 typedef struct packet_header {
   enum opcode type;

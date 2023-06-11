@@ -37,22 +37,19 @@ void handle_packet(server_state *s, client *c, packet *p) {
     }
     case SEND_MSG: {
       // when server receives a SendMsg we can add it to the database
-
-      printf("inserting new message into the database\n");
       message msg = p->data.send_msg.msg;
       printf("msg contents: %s\n", msg.contents);
+      printf("inserting new message into the database\n");
 
       // insert into database
       uint32_t id = (uint32_t)insert_msg(s->db, msg.channel, msg.author, msg.contents);
       p->data.send_msg.msg.id = id;
       uint8_t buf[1024];
       int len = serialise_packet(p, buf);
-      printf("len: %d\n", len);
 
       // broadcast msg to all connected clients
       // TODO: broadcast_msg(); // this will queue it to be written to each clients write buffer
       for (int j = 0; j < s->clients_len; j++) {
-        // Send to everyone!
         int dest_fd = s->clients[j].socket_fd;
 
         // Except the listener and ourselves
@@ -62,8 +59,6 @@ void handle_packet(server_state *s, client *c, packet *p) {
           }
         }
       }
-      printf("here3\n");
-
       break;
     }
     default:

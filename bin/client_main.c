@@ -26,6 +26,7 @@ int main() {
   uint8_t write_buf[1024];
   int len = 0;
 
+  const char *helloworld = "Hello, World!";
   packet p = {
     .header = { .type = SEND_MSG },
     .data.send_msg = {

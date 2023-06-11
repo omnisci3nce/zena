@@ -13,10 +13,8 @@ int serialise_packet(packet *p, uint8_t *output_buf) {
   uint32_t op = SEND_MSG;
   memcpy(output_buf, &op, 4);
   current_len += 4;
-  // memcpy(output_buf, &len, 4);
-  //  length
+  // skip length because we fill it in at the end after computing packet size
   current_len += 4;
-  printf("here\n");
 
   switch (p->header.type) {
     case AUTH: {
@@ -52,7 +50,6 @@ int serialise_packet(packet *p, uint8_t *output_buf) {
       return -1;
   }
   memcpy(output_buf + 4, &current_len, 4);
-  printf("here2\n");
   return current_len;
 }
 
@@ -66,22 +63,22 @@ int deserialise_packet(uint8_t *data_buffer, packet *p) {
   uint32_t len = unpack_u32(&current_ptr);
   p->header.type = opcode;
 
-  printf("packet len: %d packet op: %d\n", len, opcode);
+  printf("packet len: %d packet opcode: %s\n", len, op_to_str[opcode]);
   switch (opcode) {
     case SEND_MSG:
       p->data.send_msg.msg.id = unpack_u32(&current_ptr);
       p->data.send_msg.msg.author = unpack_u32(&current_ptr);
       p->data.send_msg.msg.channel = unpack_u32(&current_ptr);
-      // malloc a string
+      // allocate a string to hold the message contents
       uint32_t contents_len = unpack_u32(&current_ptr);
       printf("contents len: %d\n", contents_len);
       char *contents = malloc((contents_len) * sizeof(char));  // + 1 for '\0' terminator
-      strcpy(contents, current_ptr);
-      // contents[contents_len] = '\0';
+      strcpy(contents, (char *)current_ptr);
       p->data.send_msg.msg.contents = contents;  // this packet now owns this memory
       break;
     default:
-      break;
+      printf("unhandled packet type\n");
+      return -1;
   }
 
   return 0;
