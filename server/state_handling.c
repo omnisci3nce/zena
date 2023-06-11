@@ -24,7 +24,7 @@ void handle_packet(server_state *s, client *c, packet *p) {
       // insert new message into database
       int msg_id;
       query_result q_res = insert_msg(s->db, msg.channel, msg.author, msg.contents, &msg_id);
-      p->data.send_msg.msg.id = (uint32_t)msg_id;
+      msg.id = (uint32_t)msg_id;
 
       // broadcast msg to all connected clients
       broadcast_msg(s, msg);
@@ -34,13 +34,14 @@ void handle_packet(server_state *s, client *c, packet *p) {
     }
     case AUTH: {
       // client wants to log in
+      struct authenticate auth = p->data.authenticate;
 
       // get the user associated with the id
       user user;
-      query_result q_res = get_user(s->db, p->data.authenticate.user_id, &user);
+      query_result q_res = get_user(s->db, auth.user_id, &user);
       if (q_res == Q_SUCCESS) {
         printf("found user matching id %d - username: %s\n", user.id, user.username);
-        if (strcmp(p->data.authenticate.password, user.password) == 0) {
+        if (strcmp(auth.password, user.password) == 0) {
           printf("the provided password matches!\n");
           // TODO: send a AUTH_ACK
         }
