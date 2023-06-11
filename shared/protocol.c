@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <string.h>
+#include "pack.h"
 #include "protocol.h"
+
+// we will need a **serialise** and a **deserialise**
 
 int serialise_packet(packet *p, uint8_t *output_buf) {
 
@@ -16,4 +19,18 @@ int serialise_packet(packet *p, uint8_t *output_buf) {
     default:
       return -1;
   }
+}
+
+int deserialise_packet(uint8_t *data_buffer, packet *p) {
+  // unpack the header
+  memset(p, 0, sizeof(packet)); // reset packet to zero in-case caller didn't initialise to zero
+  const uint8_t *current_ptr = data_buffer;
+
+  uint32_t len = unpack_u32(&current_ptr);
+  uint8_t opcode = *current_ptr;
+  current_ptr++;
+
+  printf("packet len: %d packet op: %d\n", len, opcode);
+
+  return 0;
 }

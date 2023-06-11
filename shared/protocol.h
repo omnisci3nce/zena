@@ -43,6 +43,19 @@ typedef struct packet {
   union packet_payload data;
 } packet;
 
+// ------ Serialisation
+
+/**
+ * @brief bytes -> packet 
+ * @param p -> packet struct the result will be stored in
+ * @return 0 = success, -1 = error
+ */
+int deserialise_packet(uint8_t *data_buffer, packet *p);
+
+/**
+ * @brief packet -> bytes
+ * @return int length of serialised packet in the buffer. returns -1 if error
+ */
 int serialise_packet(packet *p, uint8_t *output_buf);
 
 // ----- Parser
