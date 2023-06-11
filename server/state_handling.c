@@ -38,17 +38,15 @@ void handle_packet(server_state *s, client *c, packet *p) {
       break;
     }
     case MSG: {
-      // when server receives a SendMsg we can add it to the database
+      // when server receives a MSG we can add the new message into the database
       message msg = p->data.send_msg.msg;
-      printf("msg contents: %s\ninserting new message into the database\n", msg.contents);
+      printf("received msg with contents: %s\ninserting new message into the database\n",
+             msg.contents);
 
       // insert new message into database
       int msg_id;
-      query_result q_res =
-          (uint32_t)insert_msg(s->db, msg.channel, msg.author, msg.contents, &msg_id);
-      p->data.send_msg.msg.id = msg_id;
-      uint8_t buf[1024];
-      int len = serialise_packet(p, buf);
+      query_result q_res = insert_msg(s->db, msg.channel, msg.author, msg.contents, &msg_id);
+      p->data.send_msg.msg.id = (uint32_t)msg_id;
 
       // broadcast msg to all connected clients
       broadcast_msg(s, msg);
