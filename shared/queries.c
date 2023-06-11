@@ -23,8 +23,8 @@ const char *insert_message_query =
  * @param from get messages after this message id. set to NULL to get from first
  * @param to get messages up until this message id. set to NULL to get until latest
  */
-int get_msgs_in_channel(sqlite3 *db, uint32_t channel_id, uint32_t from, uint32_t to,
-                        kitc_darray *msg_array) {
+query_result get_msgs_in_channel(sqlite3 *db, uint32_t channel_id, uint32_t from, uint32_t to,
+                                 kitc_darray *msg_array) {
   int rc;
   sqlite3_stmt *res;
   message temp_msg;
@@ -59,11 +59,8 @@ int get_msgs_in_channel(sqlite3 *db, uint32_t channel_id, uint32_t from, uint32_
   return i;
 }
 
-/*
- * get_all_channels();
- */
-
-int insert_msg(sqlite3 *db, uint32_t channel_id, uint32_t author_id, char *content) {
+query_result insert_msg(sqlite3 *db, uint32_t channel_id, uint32_t author_id, char *content,
+                        int *inserted_id) {
   // TODO: make this a 'trace' log
   // printf("inserting message into database\n");
   int rc = 0;
@@ -85,10 +82,10 @@ int insert_msg(sqlite3 *db, uint32_t channel_id, uint32_t author_id, char *conte
   rc = sqlite3_step(stmt);
   // TODO: error check
 
-  int last_id = sqlite3_last_insert_rowid(db);
+  *inserted_id = sqlite3_last_insert_rowid(db);
 
   sqlite3_finalize(stmt);
-  return last_id;
+  return Q_SUCCESS;
 }
 
 query_result sqlite_version(sqlite3 *db) {
@@ -110,5 +107,5 @@ query_result sqlite_version(sqlite3 *db) {
   }
 
   sqlite3_finalize(res);
-  return Success;
+  return Q_SUCCESS;
 }

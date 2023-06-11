@@ -39,7 +39,7 @@ server.o: server/server.h server/server.c
 # 	$(CC) $(CFLAGS) -c -o $@ $^ # @ = whats on LHS of rule  ^ = whats on RHS of rule
 
 client:  $(SHARED_OBJS)
-	$(CC) $(CLIENT_SRC) $(SHARED_SRC) $(INC_DIRS) build/sqlite3.o bin/client_main.c -o build/client.exe
+	$(CC) $(CLIENT_SRC) $(SHARED_SRC) -I./shared/ -I./deps/sqlite/ -I./deps/kitc/include/ -I./client build/sqlite3.o bin/client_main.c -o build/client.exe
 
 clean: 
 	rm -rf build/*

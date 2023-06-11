@@ -1,6 +1,7 @@
 #include "state_handling.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 
 #include "../shared/protocol.h"
@@ -8,6 +9,7 @@
 #include "server.h"
 
 uint32_t oldest_msg_id_in_cache(channel *ch){};
+void broadcast_msg(server_state *s, message m);
 
 void handle_packet(server_state *s, client *c, packet *p) {
   switch (p->header.type) {
@@ -35,34 +37,45 @@ void handle_packet(server_state *s, client *c, packet *p) {
       }
       break;
     }
-    case SEND_MSG: {
+    case MSG: {
       // when server receives a SendMsg we can add it to the database
       message msg = p->data.send_msg.msg;
-      printf("msg contents: %s\n", msg.contents);
-      printf("inserting new message into the database\n");
+      printf("msg contents: %s\ninserting new message into the database\n", msg.contents);
 
-      // insert into database
-      uint32_t id = (uint32_t)insert_msg(s->db, msg.channel, msg.author, msg.contents);
-      p->data.send_msg.msg.id = id;
+      // insert new message into database
+      int msg_id;
+      query_result q_res =
+          (uint32_t)insert_msg(s->db, msg.channel, msg.author, msg.contents, &msg_id);
+      p->data.send_msg.msg.id = msg_id;
       uint8_t buf[1024];
       int len = serialise_packet(p, buf);
 
       // broadcast msg to all connected clients
-      // TODO: broadcast_msg(); // this will queue it to be written to each clients write buffer
-      for (int j = 0; j < s->clients_len; j++) {
-        int dest_fd = s->clients[j].socket_fd;
+      broadcast_msg(s, msg);
 
-        // Except the listener and ourselves
-        if (dest_fd != s->fds[0].fd && dest_fd != c->socket_fd) {
-          if (send(dest_fd, buf, len, 0) == -1) {
-            perror("send");
-          }
-        }
-      }
+      free(msg.contents);
       break;
     }
     default:
       fprintf(stderr, "Unhandled cmd_type");
       break;
+  }
+}
+
+void broadcast_msg(server_state *s, message m) {
+  printf("broadcasting message...\n");
+  packet p = {.header = {.type = MSG}, .data.send_msg.msg = m};
+  uint8_t buf[1024];
+  int len = serialise_packet(&p, buf);
+  for (int j = 0; j < s->clients_len; j++) {
+    int dest_fd = s->clients[j].socket_fd;
+
+    // Except the listener and ourselves
+    // TEMP: send back to all clients (acts as echo server as well as broadcast)
+    if (dest_fd != s->fds[0].fd) {
+      if (send(dest_fd, buf, len, 0) == -1) {
+        perror("send");
+      }
+    }
   }
 }

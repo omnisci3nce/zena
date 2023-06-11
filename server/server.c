@@ -104,7 +104,7 @@ void server_start(server_state *s) {
 
         if (s->fds[i].fd == listenfd) {
           // If listener is ready to read, handle new connection
-
+          // TODO: abstract this into function like accept_connection()
           struct sockaddr_storage remoteaddr;
           socklen_t addrlen = sizeof(remoteaddr);
           int newfd = accept(listenfd, (struct sockaddr *)&remoteaddr, &addrlen);
@@ -152,20 +152,9 @@ void server_start(server_state *s) {
             packet p;
             uint8_t buffer[1024];
             deserialise_packet(buf, &p);
-            handle_packet(s, client, &p);
-            // we would expect the above to insert a new message
-
-            // for (int j = 0; j < s->fd_count; j++) {
-            //   // Send to everyone!
-            //   int dest_fd = s->fds[j].fd;
-            //
-            //   // Except the listener and ourselves
-            //   if (dest_fd != listenfd && dest_fd != sender_fd) {
-            //     if (send(dest_fd, buf, nbytes, 0) == -1) {
-            //       perror("send");
-            //     }
-            //   }
-            // }
+            handle_packet(
+                s, client,
+                &p);  // core logic goes inside here. this will update the state of the world
           }
         }  // END handle data from client
       }    // END got ready-to-read from poll()

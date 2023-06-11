@@ -10,7 +10,7 @@
 
 int serialise_packet(packet *p, uint8_t *output_buf) {
   uint32_t current_len = 0;
-  uint32_t op = SEND_MSG;
+  uint32_t op = MSG;
   memcpy(output_buf, &op, 4);
   current_len += 4;
   // skip length because we fill it in at the end after computing packet size
@@ -25,7 +25,7 @@ int serialise_packet(packet *p, uint8_t *output_buf) {
       memcpy(output_buf + 4, p->data.authenticate.password, str_len + 1);
       return 4 + 1 + str_len;
     }
-    case SEND_MSG: {
+    case MSG: {
       // pack u32 id
       memcpy(output_buf + current_len, &p->data.send_msg.msg.id, 4);
       current_len += 4;
@@ -65,7 +65,7 @@ int deserialise_packet(uint8_t *data_buffer, packet *p) {
 
   printf("packet len: %d packet opcode: %s\n", len, op_to_str[opcode]);
   switch (opcode) {
-    case SEND_MSG:
+    case MSG:
       p->data.send_msg.msg.id = unpack_u32(&current_ptr);
       p->data.send_msg.msg.author = unpack_u32(&current_ptr);
       p->data.send_msg.msg.channel = unpack_u32(&current_ptr);

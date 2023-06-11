@@ -11,6 +11,9 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "./state_handling.h"
+#include "state.h"
+
 int main() {
   /* overall control flow of initial connection and application usage */
 
@@ -23,12 +26,13 @@ int main() {
   // -----------------------------
 
   // init client state
+  struct client_state client;
   uint8_t write_buf[1024];
   int len = 0;
 
   const char *helloworld = "Hello, World!";
   packet p = {
-    .header = { .type = SEND_MSG },
+    .header = { .type = MSG },
     .data.send_msg = {
       .msg = {
         .id = 1,
@@ -70,7 +74,7 @@ int main() {
 	puts("\nConnected");
   // send packet from write buf
   send(sockfd, write_buf, len, 0);
-  printf("sent SEND_MSG packet\n");
+  printf("sent MSG packet\n");
 
   while (1) {
 
@@ -100,7 +104,7 @@ int main() {
             packet p;
             uint8_t buffer[1024];
             deserialise_packet(buf, &p);
-            //handle_packet(s, client, &p);
+            handle_packet(&client, &p);
       }
     }
 

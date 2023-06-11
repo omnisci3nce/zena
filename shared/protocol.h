@@ -26,7 +26,7 @@ union packet_payload {
 };
 
 typedef enum opcode {
-  SEND_MSG = 0x02,  // send a message
+  MSG = 0x02,  // send a message
   SYNC_MSGS = 0x04, // sync client with latest messages
   PRESENCE = 0x06,  // update the 'presence' of a user
   HEARTBEAT = 0x90,
@@ -34,10 +34,9 @@ typedef enum opcode {
 } opcode;
 
 static const char* const op_to_str[] = {
-  [SEND_MSG] = "SEND_MSG"
+  [MSG] = "MSG"
 };
 
-// for now this will just use bytes but later we might use some bitfields 
 typedef struct packet_header {
   enum opcode type;
 } packet_header;

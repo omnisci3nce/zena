@@ -1,17 +1,18 @@
-#include <stdio.h>
-// #include "client.h"
-#include "../shared/protocol.h"
-#include "../shared/queries.h"
 #include "state_handling.h"
 
-struct client_state {};
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "../shared/protocol.h"
+#include "../shared/queries.h"
+#include "state.h"
 
 void handle_packet(struct client_state *c, packet *p) {
   switch (p->header.type) {
     case SYNC_MSGS: {
       break;
     }
-    case SEND_MSG: {
+    case MSG: {
       // client received a message
       message msg = p->data.send_msg.msg;
 
@@ -22,10 +23,11 @@ void handle_packet(struct client_state *c, packet *p) {
 
       // if there is some multimedia attached to the message, do we need to do
       // anything special?
+      free(msg.contents);
       break;
     }
     default:
-      fprintf(stderr, "Unhandled cmd_type");
+      fprintf(stderr, "Unhandled packet type");
       break;
   }
 }
