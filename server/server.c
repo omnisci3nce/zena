@@ -70,18 +70,15 @@ void server_start(server_state *s) {
   s->fds[0].events = POLLIN;
   s->fd_count = 1;
 
-  //int fd_count = MAX_CONCURRENT_CLIENTS + 1;
   char remoteIP[INET6_ADDRSTRLEN];
   char buf[1024];    // Buffer for client data
   while (1) {
     printf("starting poll()\n");
-    printf("fd_count %d\n", s->fd_count);
     int poll_count = poll(s->fds, s->fd_count, -1);
     if (poll_count == -1) {
-            perror("poll");
-            exit(1);
-        }
-    printf("poll success\n");
+      perror("poll");
+      exit(1);
+    }
 
     // Run through the existing connections looking for data to read
         for(int i = 0; i < s->fd_count; i++) {
@@ -115,6 +112,9 @@ void server_start(server_state *s) {
                     int nbytes = recv(s->fds[i].fd, buf, sizeof buf, 0);
 
                     int sender_fd = s->fds[i].fd;
+                    
+                    // lookup associated client struct for this socket fd
+
 
                     if (nbytes <= 0) {
                         // Got error or connection closed by client
