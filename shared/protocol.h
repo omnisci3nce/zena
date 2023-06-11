@@ -19,11 +19,16 @@ struct authenticate {
   const char *password;
 };
 
+struct generic_id {
+  uint32_t id;
+};
+
 union packet_payload {
   //struct startup startup;
   struct sync_msgs sync_msgs;
   struct send_msg send_msg;
   struct authenticate authenticate;
+  struct generic_id generic_id;
 };
 
 typedef enum opcode {
@@ -31,6 +36,7 @@ typedef enum opcode {
   MSG = 0x02,  // send a message
   SYNC_MSGS = 0x04, // sync client with latest messages
   PRESENCE = 0x06,  // update the 'presence' of a user
+  FETCH_MSGS = 0x0A,
   HEARTBEAT = 0x90,
   STARTUP
 } opcode;
@@ -38,6 +44,7 @@ typedef enum opcode {
 static const char* const op_to_str[] = {
   [MSG] = "MSG",
   [AUTH] = "AUTH",
+  [FETCH_MSGS] = "FETCH_MSGS",
   [STARTUP] = "STARTUP"
 };
 

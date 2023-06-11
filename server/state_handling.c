@@ -1,10 +1,12 @@
 #include "state_handling.h"
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 
+#include "../deps/kitc/include/kitc.h"
 #include "../shared/protocol.h"
 #include "../shared/queries.h"
 #include "model.h"
@@ -38,6 +40,28 @@ void handle_packet(server_state *s, client *c, packet *p) {
       }
 
       free(msg.contents);
+      break;
+    }
+    case FETCH_MSGS: {
+      uint32_t channel_id = p->data.generic_id.id;
+
+      // fetch all msgs in the db and store in a dynamic array provided by kitc
+      kitc_darray *messages = kitc_darray_new(sizeof(message), 2);
+      get_msgs_in_channel(s->db, 1, 0, 0, messages);
+      int msg_len = kitc_darray_len(messages);
+      printf("num messages: %d\n", msg_len);
+
+      uint8_t buf[1024];
+      int len;
+      for (int i = 0; i < msg_len; ++i) {
+        message msg = ((message *)messages->data)[i];
+        packet p = {.header = {.type = MSG}, .data.send_msg.msg = msg};
+        len = serialise_packet(&p, buf);
+
+        if (send(c->socket_fd, buf, len, 0) == -1) {
+          perror("send");
+        }
+      }
       break;
     }
     case AUTH: {

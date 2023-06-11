@@ -5,3 +5,6 @@ typedef struct rect {
 
 rect rect_new(int x, int y, int width, int height);
 rect rect_intersect(rect a, rect b);
+
+
+// SDL or Raylib for graphics + window abstraction layer?

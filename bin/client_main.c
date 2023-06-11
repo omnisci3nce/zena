@@ -55,30 +55,25 @@ int main() {
     perror("connect failed. Error");
     return 1;
   }
+  puts("\nConnected");
 
   printf("packet len %d\n", len);
   for (int i = 0; i < len; i++) {
     printf("%d ", write_buf[i]);
   }
 
-  puts("\nConnected");
-  // send packet from write buf
   int sent = send(sockfd, write_buf, len, 0);
   printf("sent AUTH packet %d bytes got sent\n", sent);
 
   memset(&p, 0, sizeof(packet));
+  p.header.type = FETCH_MSGS;
+  struct generic_id chan_id = {.id = 1};
+  p.data.generic_id = chan_id;
 
-  p.header.type = MSG;
-  message m = {.id = 1, .author = 1, .channel = 1, .contents = helloworld};
-  p.data.send_msg.msg = m;
   len = serialise_packet(&p, write_buf);
-  printf("packet len %d\n", len);
-  for (int i = 0; i < len; i++) {
-    printf("%d ", write_buf[i]);
-  }
   sleep(1);
   sent = send(sockfd, write_buf, len, 0);
-  printf("sent MSG packet %d bytes got sent\n", sent);
+  printf("sent FETCH_MSG packet %d bytes got sent\n", sent);
 
   while (1) {
     int poll_count = poll(pfds, 1, -1);
@@ -104,10 +99,16 @@ int main() {
       } else {
         printf("Received %d bytes from server\n%s\n", nbytes, buf);
 
-        packet p;
-        uint8_t buffer[1024];
-        deserialise_packet(buf, &p);
-        client_handle_packet(&client, &p);
+        while (nbytes > 0) {
+          packet p;
+          uint8_t buffer[1024];
+          int bytes_consumed = deserialise_packet(buf, &p);
+          if (bytes_consumed <= 0) {
+            return -1;
+          }
+          client_handle_packet(&client, &p);
+          nbytes -= bytes_consumed;
+        }
       }
     }
   }

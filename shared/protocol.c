@@ -38,7 +38,7 @@ int serialise_packet(packet *p, uint8_t *output_buf) {
       // pack u32 author
       memcpy(output_buf + current_len, &p->data.send_msg.msg.author, 4);
       current_len += 4;
-      // pack u32 id
+      // pack u32 channel id
       memcpy(output_buf + current_len, &p->data.send_msg.msg.channel, 4);
       current_len += 4;
 
@@ -50,6 +50,12 @@ int serialise_packet(packet *p, uint8_t *output_buf) {
       // pack string
       strcpy(output_buf + current_len, p->data.send_msg.msg.contents);
       current_len += str_len + 1;
+      break;
+    }
+    case FETCH_MSGS: {
+      // pack u32 channel id
+      memcpy(output_buf + current_len, &p->data.generic_id.id, 4);
+      current_len += 4;
       break;
     }
     default:
@@ -82,6 +88,9 @@ int deserialise_packet(uint8_t *data_buffer, packet *p) {
       strcpy(contents, (char *)current_ptr);
       p->data.send_msg.msg.contents = contents;  // this packet now owns this memory
       break;
+    case FETCH_MSGS:
+      p->data.generic_id.id = unpack_u32(&current_ptr);
+      break;
     case AUTH:
       p->data.authenticate.user_id = unpack_u32(&current_ptr);
       // allocate a string to hold the password contents
@@ -94,5 +103,5 @@ int deserialise_packet(uint8_t *data_buffer, packet *p) {
       return -1;
   }
 
-  return 0;
+  return len;
 }
