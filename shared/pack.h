@@ -4,6 +4,12 @@
 
 #include <stdint.h>
 
+/* TODO:
+ * - pack/unpack u16
+ * - pack/unpack u64
+ * - pack/unpack string
+*/
+
 void pack_u32(uint8_t *buf, uint32_t val) {
   *buf++ = val >> 24;
   *buf++ = val >> 16;
