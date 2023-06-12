@@ -2,25 +2,26 @@
 
 lightweight messenging (as in chat) server and client implementation
 
-## cloning
+## contributing
+
+### cloning
 
 `git clone --recurse-submodules https://github.com/AutodidactsHaven/kitc.git`
 
-contributing
+### database migrations
 
 I've been using the [dbmate](https://github.com/amacneil/dbmate) utility for running
-database migrations.
+database migrations. From `zena/` run `dbmate create` and `dbmate up` to run migrations.
 
 ## goals
 
 Goals:
-* ststst
-* ststst
 * simple setup and compilation to make contributing easy
+* lightweight
+* support screenshare (maybe via OBS somehow?)
 
 Non-goals (subject to change):
-* decentralisation
-
+* decentralisation & federation
 
 ## Running list of things we need
 
