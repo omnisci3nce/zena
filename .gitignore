@@ -1,5 +1,26 @@
+*.sqlite-journal
+
+*.d
 *.out
 *.o
 *.exe
 
-*.sqlite-journal
+*.ko
+*.obj
+*.elf
+
+*.ilk
+*.map
+*.exp
+*.gch
+*.pch
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
