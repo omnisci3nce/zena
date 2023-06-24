@@ -33,19 +33,22 @@ union packet_payload {
 };
 
 typedef enum opcode {
-  AUTH = 0x01,
+  AUTH = 0x01, // client authenticate with server
   MSG = 0x02,  // send a message
   SYNC_MSGS = 0x04, // sync client with latest messages
   PRESENCE = 0x06,  // update the 'presence' of a user
   FETCH_MSGS = 0x0A,
-  HEARTBEAT = 0x90,
+  HEARTBEAT = 0x90, // im alive!
   STARTUP
 } opcode;
 
 static const char* const op_to_str[] = {
-  [MSG] = "MSG",
   [AUTH] = "AUTH",
+  [MSG] = "MSG",
+  [SYNC_MSGS] = "SYNC_MSGS",
+  [PRESENCE] = "PRESENCE",
   [FETCH_MSGS] = "FETCH_MSGS",
+  [HEARTBEAT] = "HEARTBEAT",
   [STARTUP] = "STARTUP"
 };
 
