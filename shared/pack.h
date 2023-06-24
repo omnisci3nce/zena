@@ -51,13 +51,12 @@ int pack_string(uint8_t **buf, char *val) {
 uint32_t unpack_string(const uint8_t **buf, char **output) {
   // unpack length
   uint32_t string_len = unpack_u32(buf);
-
   printf("contents len: %d\n", string_len);
-  // unpack string
 
+  // unpack string
   char *str = malloc((string_len) * sizeof(char));  // + 1 for '\0' terminator
   strcpy(str, (char *)(*buf));
-  *output = str;
+  (*output) = str;
   (*buf) += string_len;
 
   return 4 + string_len;

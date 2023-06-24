@@ -60,7 +60,7 @@ int deserialise_packet(uint8_t *data_buffer, packet *p) {
       p->data.send_msg.msg.author = unpack_u32(&current_ptr);
       p->data.send_msg.msg.channel = unpack_u32(&current_ptr);
       // allocates a string to hold the message contents
-      unpack_string(&current_ptr, p->data.send_msg.msg.contents);
+      unpack_string(&current_ptr, &p->data.send_msg.msg.contents);
       break;
     case FETCH_MSGS:
       p->data.generic_id.id = unpack_u32(&current_ptr);
