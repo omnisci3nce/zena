@@ -9,28 +9,32 @@
 // we will need a **serialise** and a **deserialise**
 
 int serialise_packet(packet *p, uint8_t *output_buf) {
+  const uint8_t *current_ptr = output_buf;
   uint32_t current_len = 0;
   uint32_t op = p->header.type;
+   pack_u32(&current_ptr, &op);
   memcpy(output_buf, &op, 4);
   current_len += 4;
   // skip length because we fill it in at the end after computing packet size
   current_len += 4;
+  current_ptr += 4;
 
   switch (p->header.type) {
     case AUTH: {
       // USERNAME
       // pack string length
-      uint32_t str_len = strlen(p->data.authenticate.username);
-      str_len++;
-      memcpy(output_buf + current_len, &str_len, 4);
-      current_len += 4;
-      // pack string
-      strcpy(output_buf + current_len, p->data.authenticate.username);
-      current_len += str_len + 1;
+      // uint32_t str_len = strlen(p->data.authenticate.username);
+      // str_len++;
+      // memcpy(output_buf + current_len, &str_len, 4);
+      // current_len += 4;
+      // // pack string
+      // strcpy(output_buf + current_len, p->data.authenticate.username);
+      // current_len += str_len + 1;
+      current_len += pack_string(&current_ptr, p->data.authenticate.username);
 
       // PASSWORD
       // pack string length
-      str_len = strlen(p->data.authenticate.password);
+      int str_len = strlen(p->data.authenticate.password);
       str_len++;
       memcpy(output_buf + current_len, &str_len, 4);
       current_len += 4;

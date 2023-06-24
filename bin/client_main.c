@@ -14,7 +14,12 @@
 #include "./state_handling.h"
 #include "client.h"
 
-int main() {
+const char *USAGE =
+  "zena - usage\n"
+  "(1) username\n"
+  "(2) password";
+
+int main(int argc, char *argv[]) {
   /* overall control flow of initial connection and application usage */
 
   // struct for server connection details
@@ -25,8 +30,15 @@ int main() {
 
   // -----------------------------
   // parse command line arguments to get username and password
-  char *username = "omni";
-  char *password = "secret_password";
+  if (argc < 3) {
+    printf("%s\n", USAGE);
+    return -1;
+  }
+  
+  // arg 1 - username
+  char *username = argv[1];
+  // arg 2 - username
+  char *password = argv[2];
 
   // init client state
   client_state client;
@@ -51,13 +63,10 @@ int main() {
 
   while (1) {
     int poll_count = poll(client.pfds, 1, -1);
-    printf("lol\n");
     if (poll_count == -1) {
       perror("poll");
       exit(1);
     }
-
-    printf("lol\n");
 
     if (client.pfds[0].revents & POLLIN) {
       int nbytes = recv(client.sockfd, client.read_buf, sizeof(client.read_buf), 0);

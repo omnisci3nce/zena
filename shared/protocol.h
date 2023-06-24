@@ -33,8 +33,8 @@ union packet_payload {
 };
 
 typedef enum opcode {
-  AUTH = 0x01, // client authenticate with server
-  MSG = 0x02,  // send a message
+  AUTH = 0x01,      // client authenticate with server
+  MSG = 0x02,       // send a message
   SYNC_MSGS = 0x04, // sync client with latest messages
   PRESENCE = 0x06,  // update the 'presence' of a user
   FETCH_MSGS = 0x0A,
