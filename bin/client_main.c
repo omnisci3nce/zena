@@ -15,9 +15,9 @@
 #include "client.h"
 
 const char *USAGE =
-  "zena - usage\n"
-  "(1) username\n"
-  "(2) password";
+    "zena - usage\n"
+    "(1) username\n"
+    "(2) password";
 
 int main(int argc, char *argv[]) {
   /* overall control flow of initial connection and application usage */
@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     printf("%s\n", USAGE);
     return -1;
   }
-  
+
   // arg 1 - username
   char *username = argv[1];
   // arg 2 - username

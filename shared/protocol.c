@@ -6,14 +6,11 @@
 
 #include "pack.h"
 
-// we will need a **serialise** and a **deserialise**
-
 int serialise_packet(packet *p, uint8_t *output_buf) {
-  const uint8_t *current_ptr = output_buf;
+  uint8_t *current_ptr = output_buf;
   uint32_t current_len = 0;
   uint32_t op = p->header.type;
-   pack_u32(&current_ptr, &op);
-  memcpy(output_buf, &op, 4);
+  pack_u32(&current_ptr, op);
   current_len += 4;
   // skip length because we fill it in at the end after computing packet size
   current_len += 4;
@@ -21,59 +18,28 @@ int serialise_packet(packet *p, uint8_t *output_buf) {
 
   switch (p->header.type) {
     case AUTH: {
-      // USERNAME
-      // pack string length
-      // uint32_t str_len = strlen(p->data.authenticate.username);
-      // str_len++;
-      // memcpy(output_buf + current_len, &str_len, 4);
-      // current_len += 4;
-      // // pack string
-      // strcpy(output_buf + current_len, p->data.authenticate.username);
-      // current_len += str_len + 1;
       current_len += pack_string(&current_ptr, p->data.authenticate.username);
-
-      // PASSWORD
-      // pack string length
-      int str_len = strlen(p->data.authenticate.password);
-      str_len++;
-      memcpy(output_buf + current_len, &str_len, 4);
-      current_len += 4;
-      // pack string
-      strcpy(output_buf + current_len, p->data.authenticate.password);
-      current_len += str_len + 1;
+      current_len += pack_string(&current_ptr, p->data.authenticate.password);
       break;
     }
     case MSG: {
-      // pack u32 id
-      memcpy(output_buf + current_len, &p->data.send_msg.msg.id, 4);
-      current_len += 4;
-      // pack u32 author
-      memcpy(output_buf + current_len, &p->data.send_msg.msg.author, 4);
-      current_len += 4;
-      // pack u32 channel id
-      memcpy(output_buf + current_len, &p->data.send_msg.msg.channel, 4);
-      current_len += 4;
-
-      uint32_t str_len = strlen(p->data.send_msg.msg.contents);
-      str_len++;
-      // pack string length
-      memcpy(output_buf + current_len, &str_len, 4);
-      current_len += 4;
-      // pack string
-      strcpy(output_buf + current_len, p->data.send_msg.msg.contents);
-      current_len += str_len + 1;
+      current_len += pack_u32(&current_ptr, p->data.send_msg.msg.id);
+      current_len += pack_u32(&current_ptr, p->data.send_msg.msg.author);
+      current_len += pack_u32(&current_ptr, p->data.send_msg.msg.channel);
+      current_len += pack_string(&current_ptr, p->data.send_msg.msg.contents);
       break;
     }
     case FETCH_MSGS: {
       // pack u32 channel id
-      memcpy(output_buf + current_len, &p->data.generic_id.id, 4);
-      current_len += 4;
+      current_len += pack_u32(&current_ptr, p->data.generic_id.id);
       break;
     }
     default:
       return -1;
   }
-  memcpy(output_buf + 4, &current_len, 4);
+
+  uint8_t *packet_len_ptr = output_buf + 4;
+  pack_u32(&packet_len_ptr, current_len);
   return current_len;
 }
 
@@ -93,26 +59,15 @@ int deserialise_packet(uint8_t *data_buffer, packet *p) {
       p->data.send_msg.msg.id = unpack_u32(&current_ptr);
       p->data.send_msg.msg.author = unpack_u32(&current_ptr);
       p->data.send_msg.msg.channel = unpack_u32(&current_ptr);
-      // allocate a string to hold the message contents
-      uint32_t contents_len = unpack_u32(&current_ptr);
-      printf("contents len: %d\n", contents_len);
-      char *contents = malloc((contents_len) * sizeof(char));  // + 1 for '\0' terminator
-      strcpy(contents, (char *)current_ptr);
-      p->data.send_msg.msg.contents = contents;  // this packet now owns this memory
+      // allocates a string to hold the message contents
+      unpack_string(&current_ptr, p->data.send_msg.msg.contents);
       break;
     case FETCH_MSGS:
       p->data.generic_id.id = unpack_u32(&current_ptr);
       break;
     case AUTH: {
-      // allocate a string to hold the password contents
-      uint32_t username_len = unpack_u32(&current_ptr);
-      p->data.authenticate.username = malloc(username_len * sizeof(char));
-      strcpy(p->data.authenticate.username, (char *)current_ptr);
-
-      // allocate a string to hold the password contents
-      uint32_t password_len = unpack_u32(&current_ptr);
-      p->data.authenticate.password = malloc(password_len * sizeof(char));
-      strcpy(p->data.authenticate.password, (char *)current_ptr);
+      unpack_string(&current_ptr, &p->data.authenticate.username);
+      unpack_string(&current_ptr, &p->data.authenticate.password);
       break;
     }
     default:

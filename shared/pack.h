@@ -10,8 +10,7 @@
 /* TODO:
  * - pack/unpack u16
  * - pack/unpack u64
- * - pack/unpack string
-*/
+ */
 
 int pack_u32(uint8_t **buf, uint32_t val) {
   **buf = val >> 24;
@@ -26,30 +25,42 @@ int pack_u32(uint8_t **buf, uint32_t val) {
 }
 
 uint32_t unpack_u32(const uint8_t **buf) {
-  uint32_t val = **buf;
+  uint32_t val = ((**buf) << 24);
   (*buf)++;
-  val |= ((**buf) << 8); 
+  val |= ((**buf) << 16);
   (*buf)++;
-  val |= ((**buf) << 16); 
+  val |= ((**buf) << 8);
   (*buf)++;
-  val |= ((**buf) << 24); 
+  val |= (**buf);
   (*buf)++;
   return val;
 }
 
 int pack_string(uint8_t **buf, char *val) {
-  size_t len = strlen(val);
-  len++; // add one for \0
+  size_t string_len = strlen(val);
+  string_len++;  // add one for \0
   // pack string length
-  pack_u32(buf, len);
+  pack_u32(buf, string_len);
   // pack string
   strcpy(*buf, val);
-  (*buf) += len;
+  (*buf) += string_len;
 
-  return 4 + len;
+  return 4 + string_len;
 }
 
-// uint32_t unpack_string(const uint8_t **buf) {
-// }
+uint32_t unpack_string(const uint8_t **buf, char **output) {
+  // unpack length
+  uint32_t string_len = unpack_u32(buf);
+
+  printf("contents len: %d\n", string_len);
+  // unpack string
+
+  char *str = malloc((string_len) * sizeof(char));  // + 1 for '\0' terminator
+  strcpy(str, (char *)(*buf));
+  *output = str;
+  (*buf) += string_len;
+
+  return 4 + string_len;
+}
 
 #endif

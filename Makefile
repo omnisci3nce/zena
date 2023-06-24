@@ -5,7 +5,7 @@ INC_DIRS=-I. -I./server/ -I./client/ -I./shared/ -I./deps/sqlite/ -I./deps/kitc/
 BUILD_DIR=build/
 SERVER_SRC=$(wildcard server/*.c)
 CLIENT_SRC=$(wildcard client/*.c)
-SHARED_SRC=$(wildcard shared/*.c) $(wildcard deps/kitc/src/*.c)
+SHARED_SRC=$(wildcard shared/*.c) $(wildcard shared/*.h) $(wildcard deps/kitc/src/*.c)
 
 CFLAGS= -g -Wall -Wextra -Werror -Wundef -Wdouble-promotion 
 # -g        : compile with debug symbols

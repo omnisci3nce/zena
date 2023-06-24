@@ -3,10 +3,10 @@
 
 #include <stdint.h>
 
-// internal 
+// internal
 
 typedef struct message {
-  /** @brief This is the unique ID for the message IN the relevant 
+  /** @brief This is the unique ID for the message IN the relevant
    * channel. IDs across channels are not unique */
   uint32_t id;
   /** @brief author ID - this is unique across a single server instance.
