@@ -14,8 +14,9 @@ struct send_msg {
   message msg;
 };
 
+// client sends to authenticate with server
 struct authenticate {
-  uint32_t user_id;
+  const char *username;
   const char *password;
 };
 

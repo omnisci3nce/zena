@@ -3,7 +3,7 @@
 
 #include "../shared/protocol.h"
 #include "../shared/queries.h"
-#include "state.h"
+#include "client.h"
 
 void client_handle_packet(client_state *c, packet *p);
 

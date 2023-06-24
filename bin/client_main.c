@@ -12,7 +12,7 @@
 
 #include "../shared/protocol.h"
 #include "./state_handling.h"
-#include "state.h"
+#include "client.h"
 
 int main() {
   /* overall control flow of initial connection and application usage */
@@ -24,66 +24,42 @@ int main() {
   // client sends AUTH -> server creates session key and responds AUTH_ACK / AUTH_NACK
 
   // -----------------------------
+  // parse command line arguments to get username and password
+  char *username = "omni";
+  char *password = "secret_password";
 
   // init client state
-  struct client_state client;
-  uint8_t write_buf[1024];
-  int len = 0;
+  client_state client;
+  client_init(&client);
 
-  const char *helloworld = "Hello, World!";
-  packet p = {.header = {.type = AUTH},
-              .data.authenticate = {.user_id = 1, .password = helloworld}};
-
-  len = serialise_packet(&p, write_buf);
+  // perform handshake with server authenticating the client and getting back a user id
+  // NOTE: this will block
+  client_handshake(&client, username, password);
 
   // connect to server
-  int sockfd;
-  struct sockaddr_in server;
+  client_connect(&client, "", 5000);
 
-  sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  server.sin_addr.s_addr = inet_addr("127.0.0.1");
-  server.sin_family = AF_INET;
-  server.sin_port = htons(5000);
-
-  struct pollfd pfds[1];  // More if you want to monitor more
-  pfds[0].fd = sockfd;
-  pfds[0].events = POLLIN;  // Tell me when ready to read
-
-  char buf[1024];
-  // connect
-  if (connect(sockfd, (struct sockaddr *)&server, sizeof(server)) < 0) {
-    perror("connect failed. Error");
-    return 1;
-  }
   puts("\nConnected");
 
-  printf("packet len %d\n", len);
-  for (int i = 0; i < len; i++) {
-    printf("%d ", write_buf[i]);
-  }
-
-  int sent = send(sockfd, write_buf, len, 0);
-  printf("sent AUTH packet %d bytes got sent\n", sent);
-
-  memset(&p, 0, sizeof(packet));
+  packet p = {0};
   p.header.type = FETCH_MSGS;
   struct generic_id chan_id = {.id = 1};
   p.data.generic_id = chan_id;
 
-  len = serialise_packet(&p, write_buf);
+  int len = serialise_packet(&p, client.write_buf);
   sleep(1);
-  sent = send(sockfd, write_buf, len, 0);
+  int sent = send(client.sockfd, client.write_buf, len, 0);
   printf("sent FETCH_MSG packet %d bytes got sent\n", sent);
 
   while (1) {
-    int poll_count = poll(pfds, 1, -1);
+    int poll_count = poll(client.pfds, 1, -1);
     if (poll_count == -1) {
       perror("poll");
       exit(1);
     }
 
-    if (pfds[0].revents & POLLIN) {
-      int nbytes = recv(sockfd, buf, sizeof buf, 0);
+    if (client.pfds[0].revents & POLLIN) {
+      int nbytes = recv(client.sockfd, client.read_buf, sizeof(client.read_buf), 0);
       if (nbytes <= 0) {
         // Got error or connection closed by client
         if (nbytes == 0) {
@@ -93,16 +69,15 @@ int main() {
           perror("recv");
         }
 
-        close(sockfd);  // Bye!
+        close(client.sockfd);  // Bye!
         break;
 
       } else {
-        printf("Received %d bytes from server\n%s\n", nbytes, buf);
+        printf("Received %d bytes from server\n%s\n", nbytes, client.read_buf);
 
         while (nbytes > 0) {
           packet p;
-          uint8_t buffer[1024];
-          int bytes_consumed = deserialise_packet(buf, &p);
+          int bytes_consumed = deserialise_packet(client.read_buf, &p);
           if (bytes_consumed <= 0) {
             return -1;
           }

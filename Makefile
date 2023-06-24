@@ -1,6 +1,6 @@
 CC=gcc
 
-INC_DIRS=-I. -I./server/ -I./shared/ -I./deps/sqlite/ -I./deps/kitc/include/
+INC_DIRS=-I. -I./server/ -I./client/ -I./shared/ -I./deps/sqlite/ -I./deps/kitc/include/
 
 BUILD_DIR=build/
 SERVER_SRC=$(wildcard server/*.c)

@@ -18,11 +18,19 @@ int serialise_packet(packet *p, uint8_t *output_buf) {
 
   switch (p->header.type) {
     case AUTH: {
-      // pack u32 user_id
-      memcpy(output_buf + current_len, &p->data.authenticate.user_id, 4);
-      current_len += 4;
+      // USERNAME
       // pack string length
-      uint32_t str_len = strlen(p->data.authenticate.password);
+      uint32_t str_len = strlen(p->data.authenticate.username);
+      str_len++;
+      memcpy(output_buf + current_len, &str_len, 4);
+      current_len += 4;
+      // pack string
+      strcpy(output_buf + current_len, p->data.authenticate.username);
+      current_len += str_len + 1;
+
+      // PASSWORD
+      // pack string length
+      str_len = strlen(p->data.authenticate.password);
       str_len++;
       memcpy(output_buf + current_len, &str_len, 4);
       current_len += 4;
@@ -91,13 +99,18 @@ int deserialise_packet(uint8_t *data_buffer, packet *p) {
     case FETCH_MSGS:
       p->data.generic_id.id = unpack_u32(&current_ptr);
       break;
-    case AUTH:
-      p->data.authenticate.user_id = unpack_u32(&current_ptr);
+    case AUTH: {
+      // allocate a string to hold the password contents
+      uint32_t username_len = unpack_u32(&current_ptr);
+      p->data.authenticate.username = malloc(username_len * sizeof(char));
+      strcpy(p->data.authenticate.username, (char *)current_ptr);
+
       // allocate a string to hold the password contents
       uint32_t password_len = unpack_u32(&current_ptr);
       p->data.authenticate.password = malloc(password_len * sizeof(char));
       strcpy(p->data.authenticate.password, (char *)current_ptr);
       break;
+    }
     default:
       printf("unhandled packet type\n");
       return -1;
