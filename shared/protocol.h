@@ -21,6 +21,11 @@ struct authenticate {
   const char *password;
 };
 
+struct auth_ack {
+  uint32_t user_id;
+  const char *session_key;
+};
+
 struct generic_id {
   uint32_t id;
 };
@@ -40,7 +45,8 @@ typedef enum opcode {
   PRESENCE = 0x06,   // update the 'presence' of a user
   FETCH_MSGS = 0x0A,
   HEARTBEAT = 0x90,  // im alive!
-  STARTUP
+  STARTUP = 0xAA,
+  AUTH_ACK,
 } opcode;
 
 static const char *const op_to_str[] = {[AUTH] = "AUTH",
@@ -49,7 +55,8 @@ static const char *const op_to_str[] = {[AUTH] = "AUTH",
                                         [PRESENCE] = "PRESENCE",
                                         [FETCH_MSGS] = "FETCH_MSGS",
                                         [HEARTBEAT] = "HEARTBEAT",
-                                        [STARTUP] = "STARTUP"};
+                                        [STARTUP] = "STARTUP",
+                                        [AUTH_ACK] = "AUTH_ACK"};
 
 typedef struct packet_header {
   enum opcode type;
