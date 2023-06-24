@@ -32,14 +32,12 @@ int main() {
   client_state client;
   client_init(&client);
 
-  // perform handshake with server authenticating the client and getting back a user id
-  // NOTE: this will block
-  client_handshake(&client, username, password);
-
   // connect to server
   client_connect(&client, "", 5000);
 
-  puts("\nConnected");
+  // perform handshake with server authenticating the client and getting back a user id
+  // NOTE: this will block
+  client_handshake(&client, username, password);
 
   packet p = {0};
   p.header.type = FETCH_MSGS;
@@ -49,14 +47,17 @@ int main() {
   int len = serialise_packet(&p, client.write_buf);
   sleep(1);
   int sent = send(client.sockfd, client.write_buf, len, 0);
-  printf("sent FETCH_MSG packet %d bytes got sent\n", sent);
+  printf("sent %s packet %d bytes got sent\n", op_to_str[p.header.type], sent);
 
   while (1) {
     int poll_count = poll(client.pfds, 1, -1);
+    printf("lol\n");
     if (poll_count == -1) {
       perror("poll");
       exit(1);
     }
+
+    printf("lol\n");
 
     if (client.pfds[0].revents & POLLIN) {
       int nbytes = recv(client.sockfd, client.read_buf, sizeof(client.read_buf), 0);

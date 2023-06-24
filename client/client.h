@@ -27,7 +27,7 @@ bool client_connect(client_state *c, const char *address, int port);
  * @param username
  * @param password
  */
-int  client_handshake(client_state *c, const char *username, const char *password);
+bool client_handshake(client_state *c, const char *username, const char *password);
 void client_shutdown(client_state *c);
 void client_start(client_state *c);
 

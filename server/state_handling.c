@@ -70,7 +70,7 @@ void handle_packet(server_state *s, client *c, packet *p) {
 
       // get the user associated with the id
       user user;
-      query_result q_res = get_user(s->db, auth.user_id, &user);
+      query_result q_res = get_user_by_username(s->db, auth.username, &user);
       if (q_res == Q_SUCCESS) {
         printf("found user matching id %d - username: %s\n", user.id, user.username);
         if (strcmp(auth.password, user.password) == 0) {
@@ -78,7 +78,7 @@ void handle_packet(server_state *s, client *c, packet *p) {
           // TODO: send a AUTH_ACK
         }
       } else {
-        printf("get_user() query failed\n");
+        printf("get_user_by_username() query failed\n");
       }
 
       break;

@@ -110,6 +110,39 @@ query_result sqlite_version(sqlite3 *db) {
   return Q_SUCCESS;
 }
 
+query_result get_user_by_username(sqlite3 *db, const char *username, user *user) {
+  static const char *query =
+      "SELECT user_id, username, password, email "
+      "FROM users "
+      "WHERE username = ?;";
+  int rc;
+  sqlite3_stmt *res;
+  rc = sqlite3_prepare_v2(db, query, -1, &res, 0);
+  if (rc != SQLITE_OK) {
+    fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
+  }
+  printf("username %s\n", username);
+
+  // bind parameters
+  sqlite3_bind_text(res, 1, username, -1, SQLITE_STATIC);
+
+  int step = sqlite3_step(res);
+  if (step == SQLITE_ROW) {
+    user->id = sqlite3_column_int(res, 0);
+    user->username = malloc(strlen(sqlite3_column_text(res, 1)) + 1);
+    strcpy(user->username, sqlite3_column_text(res, 1));
+    user->password = malloc(strlen(sqlite3_column_text(res, 2)) + 1);
+    strcpy(user->password, sqlite3_column_text(res, 2));
+    user->email = malloc(strlen(sqlite3_column_text(res, 3)) + 1);
+    strcpy(user->email, sqlite3_column_text(res, 3));
+  } else {
+    return Q_DB_ERROR;
+  }
+
+  sqlite3_finalize(res);
+  return Q_SUCCESS;
+}
+
 query_result get_user(sqlite3 *db, uint32_t user_id, user *user) {
   static const char *query =
       "SELECT user_id, username, password, email "
@@ -121,9 +154,10 @@ query_result get_user(sqlite3 *db, uint32_t user_id, user *user) {
   if (rc != SQLITE_OK) {
     fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
   }
-  printf("user id %d\n", user_id);
 
+  // bind parameters
   rc = sqlite3_bind_int(res, 1, user_id);
+
   int step = sqlite3_step(res);
   if (step == SQLITE_ROW) {
     user->id = sqlite3_column_int(res, 0);

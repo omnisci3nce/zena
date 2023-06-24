@@ -1,3 +1,5 @@
+#include "client.h"
+
 #include <arpa/inet.h>   // inet_addr
 #include <netinet/in.h>  // sockaddr_in
 #include <poll.h>
@@ -10,7 +12,6 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "client.h"
 #include "protocol.h"
 
 void client_init(client_state *c) { printf("init client state\n"); }
@@ -37,7 +38,7 @@ bool client_connect(client_state *c, const char *address, int port) {
   }
 }
 
-int client_handshake(client_state *c, const char *username, const char *password) {
+bool client_handshake(client_state *c, const char *username, const char *password) {
   // create AUTH packet
   // TODO(omni): Make helper functions to create packets
   packet p = {.header = {.type = AUTH},
@@ -54,4 +55,6 @@ int client_handshake(client_state *c, const char *username, const char *password
   // send AUTH packet
   int sent = send(c->sockfd, c->write_buf, len, 0);
   printf("sent AUTH packet %d bytes got sent\n", sent);
+
+  return true;
 }
