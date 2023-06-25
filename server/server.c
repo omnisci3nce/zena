@@ -90,7 +90,7 @@ void server_start(server_state *s) {
   char remoteIP[INET6_ADDRSTRLEN];
   char buf[1024];  // Buffer for client data
   while (1) {
-    printf("poll()\n");
+    // printf("poll()\n");
     int poll_count = poll(s->fds, s->fd_count, -1);
     if (poll_count == -1) {
       perror("poll");

@@ -6,25 +6,14 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "../shared/protocol.h"
+#include "../shared/model.h"
 #include <poll.h>
 
 #define MAX_CONCURRENT_CLIENTS 32
 #define MAX_CHANNELS 32
 #define MSG_CACHE_SIZE 64 // keep the last .. number of messages in memory
 
-typedef struct channel_options {
-  // TODO: things like whether mentions are allowed, visibilty, etc
-} channel_options;
-
 // in-memory representation of channel
-typedef struct channel {
-  char *name;
-  channel_options options;
-  uint32_t last_msg_id;
-
-  // TODO: ring_buffer recent_msgs; // keep each channels most recent messages in memory for
-                                    // fast access
-} channel;
 
 typedef struct client {
   uint32_t user_id;
@@ -32,7 +21,6 @@ typedef struct client {
   // TODO: read buffer
   // TODO: write buffer
 } client;
-
 
 /**
  * god object containing all the global state of the server

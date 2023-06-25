@@ -14,9 +14,14 @@
 
 #include "protocol.h"
 
-void client_init(client_state *c) { printf("init client state\n"); }
+void client_init(client_state *c) {
+  printf("init client state\n");
+  c->status = STARTING_UP;
+  c->msg_len = 0;
+}
 
 bool client_connect(client_state *c, const char *address, int port) {
+  c->status = STARTING_UP;
   // TCP stufffffz
   int sockfd;
   struct sockaddr_in server;
@@ -26,10 +31,8 @@ bool client_connect(client_state *c, const char *address, int port) {
   server.sin_family = AF_INET;
   server.sin_port = htons(5000);
 
-  // struct pollfd pfds[1];  // More if you want to monitor more
   c->pfds[0].fd = sockfd;
   c->pfds[0].events = POLLIN;  // Tell me when ready to read
-
   c->sockfd = sockfd;
 
   if (connect(sockfd, (struct sockaddr *)&server, sizeof(server)) < 0) {
@@ -39,6 +42,7 @@ bool client_connect(client_state *c, const char *address, int port) {
 }
 
 bool client_handshake(client_state *c, const char *username, const char *password) {
+  c->status = AUTHENTICATING;
   // create AUTH packet
   // TODO(omni): Make helper functions to create packets
   packet p = {.header = {.type = AUTH},
@@ -60,6 +64,7 @@ bool client_handshake(client_state *c, const char *username, const char *passwor
 }
 
 int client_run(client_state *c) {
+  c->status = ALIVE;
   while (1) {
     int poll_count = poll(c->pfds, 1, -1);
     if (poll_count == -1) {

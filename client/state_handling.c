@@ -17,13 +17,16 @@ void client_handle_packet(client_state *c, packet *p) {
       message msg = p->data.send_msg.msg;
 
       // push message into in-memory cache
+      c->messages[c->msg_len] = msg;
+      c->msg_len++;
+
       // pop oldest message
       // flag data model as updated for rendering
       // insert message into sqlite, delete oldest
 
       // if there is some multimedia attached to the message, do we need to do
       // anything special?
-      free(msg.contents);
+      // free(msg.contents);
       break;
     }
     default:

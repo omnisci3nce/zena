@@ -54,32 +54,5 @@ int main(int argc, char *argv[]) {
 
   client_run(&client);
 
-  // arg 1 - username
-  char *username = "omni";
-  // arg 2 - username
-  char *password = "secret_password";
-
-  // init client state
-  client_state client;
-  client_init(&client);
-
-  // connect to server
-  client_connect(&client, "", 5000);
-
-  // perform handshake with server authenticating the client and getting back a user id
-  // NOTE: this will block
-  client_handshake(&client, username, password);
-
-  packet p = {0};
-  p.header.type = FETCH_MSGS;
-  struct generic_id chan_id = {.id = 1};
-  p.data.generic_id = chan_id;
-
-  int len = serialise_packet(&p, client.write_buf);
-  sleep(1);
-  int sent = send(client.sockfd, client.write_buf, len, 0);
-  printf("sent %s packet %d bytes got sent\n", op_to_str[p.header.type], sent);
-
-  client_run(&client);
   return 0;
 }

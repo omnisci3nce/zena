@@ -49,7 +49,7 @@ void handle_packet(server_state *s, client *c, packet *p) {
       kitc_darray *messages = kitc_darray_new(sizeof(message), 2);
       get_msgs_in_channel(s->db, 1, 0, 0, messages);
       int msg_len = kitc_darray_len(messages);
-      printf("num messages: %d\n", msg_len);
+      // printf("num messages: %d\n", msg_len);
 
       uint8_t buf[1024];
       int len;
