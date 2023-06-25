@@ -1,11 +1,13 @@
 /** @file model.h
- *  @brief in-memory representations of domain data
+ *  @brief in-memory representations of domain data such as messages
+ *         channels, users, etc
  */
 #ifndef MODEL_H
 #define MODEL_H
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 typedef struct message {
   /** @brief This is the unique ID for the message IN the relevant
@@ -18,6 +20,8 @@ typedef struct message {
   /** @brief message contents string */
   char *contents;
 } message;
+
+static void message_free(message *m) { free(m->contents); }
 
 typedef enum presence { OFFLINE, ACTIVE, INACTIVE } presence;
 

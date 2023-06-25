@@ -26,7 +26,6 @@ void client_handle_packet(client_state *c, packet *p) {
 
       // if there is some multimedia attached to the message, do we need to do
       // anything special?
-      // free(msg.contents);
       break;
     }
     default:

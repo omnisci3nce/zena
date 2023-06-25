@@ -32,7 +32,7 @@ int main(void) {
   client_state client;
   pthread_t client_thread;
 
-  InitWindow(800, 450, "raylib [core] example - basic window");
+  InitWindow(800, 450, "Zena - #general");
 
   int iret = pthread_create(&client_thread, NULL, run_client, &client);
 
@@ -86,7 +86,7 @@ void run_client(client_state *client) {
   p.data.generic_id = chan_id;
 
   int len = serialise_packet(&p, client->write_buf);
-  sleep(1);
+  // sleep(1);
   int sent = send(client->sockfd, client->write_buf, len, 0);
   printf("sent %s packet %d bytes got sent\n", op_to_str[p.header.type], sent);
 

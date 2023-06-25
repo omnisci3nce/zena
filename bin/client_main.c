@@ -48,11 +48,16 @@ int main(int argc, char *argv[]) {
   p.data.generic_id = chan_id;
 
   int len = serialise_packet(&p, client.write_buf);
-  sleep(1);
+  sleep(0.5);
   int sent = send(client.sockfd, client.write_buf, len, 0);
   printf("sent %s packet %d bytes got sent\n", op_to_str[p.header.type], sent);
 
   client_run(&client);
+
+  for (int i = 0; i < client.msg_len; i++) {
+    message_free(&client.messages[i]);
+    printf("freed message\n");
+  }
 
   return 0;
 }
