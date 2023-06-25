@@ -31,4 +31,8 @@ bool client_handshake(client_state *c, const char *username, const char *passwor
 void client_shutdown(client_state *c);
 void client_start(client_state *c);
 
+// ----- The Juice
+
+int client_run(client_state *c);
+
 #endif /* ifndef CLIENT_H */

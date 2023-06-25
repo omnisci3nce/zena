@@ -25,7 +25,7 @@ int pack_u32(uint8_t **buf, uint32_t val) {
 }
 
 uint32_t unpack_u32(const uint8_t **buf) {
-  uint32_t val = ((**buf) << 24);
+  uint32_t val = ((*buf)[0] << 24);
   (*buf)++;
   val |= ((**buf) << 16);
   (*buf)++;
@@ -51,7 +51,7 @@ int pack_string(uint8_t **buf, char *val) {
 uint32_t unpack_string(const uint8_t **buf, char **output) {
   // unpack length
   uint32_t string_len = unpack_u32(buf);
-  printf("contents len: %d\n", string_len);
+  // printf("contents len: %d\n", string_len);
 
   // unpack string
   char *str = malloc((string_len) * sizeof(char));  // + 1 for '\0' terminator

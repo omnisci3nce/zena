@@ -58,3 +58,42 @@ bool client_handshake(client_state *c, const char *username, const char *passwor
 
   return true;
 }
+
+int client_run(client_state *c) {
+  while (1) {
+    int poll_count = poll(c->pfds, 1, -1);
+    if (poll_count == -1) {
+      perror("poll");
+      exit(1);
+    }
+
+    if (c->pfds[0].revents & POLLIN) {
+      int nbytes = recv(c->sockfd, c->read_buf, sizeof(c->read_buf), 0);
+      if (nbytes <= 0) {
+        // Got error or connection closed by client
+        if (nbytes == 0) {
+          // Connection closed
+          printf("pollserver: socket hung up\n");
+        } else {
+          perror("recv");
+        }
+
+        close(c->sockfd);  // Bye!
+        break;
+
+      } else {
+        printf("Received %d bytes from server\n%s\n", nbytes, c->read_buf);
+
+        while (nbytes > 0) {
+          packet p;
+          int bytes_consumed = deserialise_packet(c->read_buf, &p);
+          if (bytes_consumed <= 0) {
+            return -1;
+          }
+          client_handle_packet(c, &p);
+          nbytes -= bytes_consumed;
+        }
+      }
+    }
+  }
+}

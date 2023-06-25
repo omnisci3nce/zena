@@ -10,8 +10,7 @@ int serialise_packet(packet *p, uint8_t *output_buf) {
   uint8_t *current_ptr = output_buf;
   uint32_t current_len = 0;
   uint32_t op = p->header.type;
-  pack_u32(&current_ptr, op);
-  current_len += 4;
+  current_len += pack_u32(&current_ptr, op);
   // skip length because we fill it in at the end after computing packet size
   current_len += 4;
   current_ptr += 4;

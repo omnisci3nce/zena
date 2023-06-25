@@ -1,6 +1,6 @@
 CC=gcc
 
-INC_DIRS=-I. -I./server/ -I./client/ -I./shared/ -I./deps/sqlite/ -I./deps/kitc/include/
+INC_DIRS=-I. -I./server/ -I./client/ -I./shared/ -I./deps/sqlite/ -I./deps/kitc/include/ -I./deps/raylib/src/
 
 BUILD_DIR=build/
 SERVER_SRC=$(wildcard server/*.c)
@@ -52,7 +52,7 @@ client: $(SHARED_OBJS)
 
 .PHONY: gui
 gui: libraylib.a
-	$(CC) -L./build/ -I./deps/raylib/src/ bin/gui_main.c -lraylib -lglfw -lm -o build/gui.exe
+	$(CC) -L./build/ $(INC_DIRS) $(CLIENT_SRC) $(SHARED_SRC) build/sqlite3.o bin/gui_main.c -lraylib -lglfw -lm -o build/gui.exe
 
 clean: 
 	rm -rf build/*
