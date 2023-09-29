@@ -6,11 +6,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../deps/kitc/include/kitc.h"
 #include "protocol.h"
 #include "sqlite3.h"
 
+#include "containers.h"
+
 #define ROW_UPPER_LIMIT 10000
+
 
 const char *get_all_channels_query =
     "SELECT msg_id, channel_id, author_id, content FROM messages "
@@ -20,7 +22,7 @@ const char *insert_message_query =
     "VALUES ( ?, ?, ?);";
 
 query_result get_msgs_in_channel(sqlite3 *db, uint32_t channel_id, uint32_t from, uint32_t to,
-                                 kitc_darray *msg_array) {
+                                 message_darray *msg_array) {
   int rc;
   sqlite3_stmt *res;
   message temp_msg;
@@ -46,7 +48,7 @@ query_result get_msgs_in_channel(sqlite3 *db, uint32_t channel_id, uint32_t from
       temp_msg.contents = malloc(strlen(msg_contents) + 1);
       strcpy(temp_msg.contents, msg_contents);  // contents will be automatically freed next
                                                 // sqlite3_step so we need to copy it out
-      kitc_darray_push(msg_array, &temp_msg);
+      message_darray_push_copy(msg_array, &temp_msg);
       i++;
     }
   }

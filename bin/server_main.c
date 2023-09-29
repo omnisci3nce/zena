@@ -1,11 +1,12 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include "kitc.h"
 
-#include "../deps/kitc/include/kitc.h"
-#include "../server/server.h"
+#include "server.h"
 #include "queries.h"
 #include "state_handling.h"
+#include "containers.h"
 
 // temporary
 #include "sqlite3.h"
@@ -19,9 +20,9 @@ int main() {
   sqlite_version(server.db);
 
   // fetch all msgs in the db and store in a dynamic array provided by kitc
-  kitc_darray *messages = kitc_darray_new(sizeof(message), 2);
+  message_darray *messages = message_darray_new(2);
   get_msgs_in_channel(server.db, 1, 0, 0, messages);
-  int msg_len = kitc_darray_len(messages);
+  int msg_len = message_darray_len(messages);
   printf("number of messages in db: %d\n", msg_len);
 
   server_start(&server);

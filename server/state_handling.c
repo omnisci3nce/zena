@@ -5,10 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include "kitc.h"
 
-#include "../deps/kitc/include/kitc.h"
-#include "../shared/protocol.h"
-#include "../shared/queries.h"
+#include "protocol.h"
+#include "queries.h"
 #include "model.h"
 #include "server.h"
 
@@ -46,10 +46,10 @@ void handle_packet(server_state *s, client *c, packet *p) {
       uint32_t channel_id = p->data.generic_id.id;
 
       // fetch all msgs in the db and store in a dynamic array provided by kitc
-      kitc_darray *messages = kitc_darray_new(sizeof(message), 2);
+      message_darray *messages = message_darray_new(2);
       get_msgs_in_channel(s->db, 1, 0, 0, messages);
-      int msg_len = kitc_darray_len(messages);
-      // printf("num messages: %d\n", msg_len);
+      int msg_len = message_darray_len(messages);
+      printf("num messages: %d\n", msg_len);
 
       uint8_t buf[1024];
       int len;
