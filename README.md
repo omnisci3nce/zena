@@ -1,6 +1,7 @@
 # Zena
 
-lightweight messenging (as in chat) server and client implementation
+Lightweight messenging (as in chat) server and client implementations in C. Heavily **WIP** as this is just an hour here
+and there kind of project.
 
 ## contributing
 
@@ -19,13 +20,14 @@ Goals:
 * simple setup and compilation to make contributing easy
 * lightweight
 * support screenshare (maybe via OBS somehow?)
+* simple GUI using [orca](https://orca-app.dev/index.html)
 
 Non-goals (subject to change):
 * decentralisation & federation
 
 ## Running list of things we need
 
-- hash table
+- hash table (coming to `kitc` soon tm)
 - pool abstraction (for `client`s)
 - ring buffer
 - logger
