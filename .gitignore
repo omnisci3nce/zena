@@ -1,5 +1,3 @@
-*.sqlite-journal
-
 *.d
 *.out
 *.o
@@ -28,3 +26,7 @@
 # Added by cargo
 
 /target
+
+# Our additions
+*.sqlite-journal
+*.db

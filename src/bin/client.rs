@@ -3,6 +3,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 
 use eframe::egui;
+use zena::db::Db;
 
 fn main() -> Result<(), eframe::Error> {
     pretty_env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
@@ -10,41 +11,44 @@ fn main() -> Result<(), eframe::Error> {
         viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 240.0]),
         ..Default::default()
     };
-    eframe::run_native(
-        "My egui App",
-        options,
-        Box::new(|_cc| Box::<MyApp>::default()),
-    )
+    eframe::run_native("Zena", options, Box::new(|_cc| Box::<MyApp>::default()))
 }
 
 struct MyApp {
     name: String,
-    age: u32,
+    db: Db,
 }
 
 impl Default for MyApp {
     fn default() -> Self {
+        let db = Db::init().unwrap(); // TODO: handle error
         Self {
-            name: "Arthur".to_owned(),
-            age: 42,
+            name: "General".to_owned(),
+            db,
         }
     }
 }
 
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        let channels = self.db.get_all_channels().unwrap();
+
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("Zena Client");
             ui.horizontal(|ui| {
-                let name_label = ui.label("Your name: ");
+                let name_label = ui.label("Channel name: ");
                 ui.text_edit_singleline(&mut self.name)
                     .labelled_by(name_label.id);
             });
-            ui.add(egui::Slider::new(&mut self.age, 0..=120).text("age"));
-            if ui.button("Click each year").clicked() {
-                self.age += 1;
+            if ui.button("Click to create new channel").clicked() {
+                todo!("Add an INSERT query for channels")
             }
-            ui.label(format!("Hello '{}', age {}", self.name, self.age));
+            ui.spacing();
+            ui.heading("Channels");
+
+            channels.iter().for_each(|ch| {
+                ui.label(format!("Channel {}: {}", ch.id, ch.name));
+            });
         });
     }
 }
