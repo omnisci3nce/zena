@@ -3,6 +3,11 @@
 Lightweight messenging (as in chat) server and client.
 Heavily **WIP** as this is just an hour here and there kind of project.
 
+## Running
+
+`cargo run --bin client`
+`cargo run --bin client`
+
 ## Contributing
 
 TODO
