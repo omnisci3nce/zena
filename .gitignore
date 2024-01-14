@@ -24,3 +24,7 @@
 *.so
 *.so.*
 *.dylib
+
+# Added by cargo
+
+/target
