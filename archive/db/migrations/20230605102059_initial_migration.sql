@@ -38,7 +38,7 @@ create table messages (
   updated_at integer not null default (strftime('%s', 'now')),
 
   -- soft delete
-  deleted integer not null default 0
+  deleted integer not null default 0 -- 0 = not deleted, 1 = deleted
 );
 
 -- migrate:down

@@ -1446,6 +1446,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc"
 
 [[package]]
+name = "lazy_static"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
+
+[[package]]
 name = "libc"
 version = "0.2.152"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2028,6 +2034,16 @@ dependencies = [
  "hashlink",
  "libsqlite3-sys",
  "smallvec",
+]
+
+[[package]]
+name = "rusqlite_migration"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e4116d1697de2912db0b72069473dfb025f6c332b4a085ed041d121e8d745aea"
+dependencies = [
+ "log",
+ "rusqlite",
 ]
 
 [[package]]
@@ -3211,8 +3227,10 @@ version = "0.1.0"
 dependencies = [
  "eframe",
  "egui",
+ "lazy_static",
  "pretty_env_logger",
  "rusqlite",
+ "rusqlite_migration",
 ]
 
 [[package]]

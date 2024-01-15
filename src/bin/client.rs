@@ -41,7 +41,7 @@ impl eframe::App for MyApp {
                     .labelled_by(name_label.id);
             });
             if ui.button("Click to create new channel").clicked() {
-                todo!("Add an INSERT query for channels")
+                let _ = self.db.create_channel(self.name.clone());
             }
             ui.spacing();
             ui.heading("Channels");
