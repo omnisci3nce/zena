@@ -24,16 +24,10 @@ impl Db {
     }
 }
 
-#[derive(Debug)]
-pub struct Channel {
-    pub id: i64,
-    pub name: String,
-    pub created_at: i64,
-    pub updated_at: i64,
-}
-
 pub mod queries {
-    use super::{Channel, Db};
+    use crate::model::Channel;
+
+    use super::Db;
     use rusqlite::Result;
 
     impl Db {

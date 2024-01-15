@@ -3,7 +3,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 
 use eframe::egui;
-use zena::db::Db;
+use zena::{client::components::channel_list::draw_channel_list, db::Db};
 
 fn main() -> Result<(), eframe::Error> {
     pretty_env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
@@ -46,9 +46,7 @@ impl eframe::App for MyApp {
             ui.spacing();
             ui.heading("Channels");
 
-            channels.iter().for_each(|ch| {
-                ui.label(format!("Channel {}: {}", ch.id, ch.name));
-            });
+            draw_channel_list(ui, &channels);
         });
     }
 }
