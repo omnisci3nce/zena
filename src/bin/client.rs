@@ -3,7 +3,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 
 use eframe::egui;
-use zena::{client::components::channel_list::draw_channel_list, db::Db};
+use zena::{client::components::channel_list::draw_channel_list, db::Db, model::Channel};
 
 fn main() -> Result<(), eframe::Error> {
     pretty_env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
@@ -17,22 +17,26 @@ fn main() -> Result<(), eframe::Error> {
 struct MyApp {
     name: String,
     db: Db,
+    /// All channels stored in memory.
+    channels: Vec<Channel>,
+    current_channel: Option<usize>,
 }
 
 impl Default for MyApp {
     fn default() -> Self {
         let db = Db::init().unwrap(); // TODO: handle error
+        let channels = db.get_all_channels().unwrap();
         Self {
             name: "General".to_owned(),
             db,
+            channels,
+            current_channel: Some(0), // for fun lets automatically select the first channel and assume a channel will be loaded
         }
     }
 }
 
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        let channels = self.db.get_all_channels().unwrap();
-
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("Zena Client");
             ui.horizontal(|ui| {
@@ -46,7 +50,7 @@ impl eframe::App for MyApp {
             ui.spacing();
             ui.heading("Channels");
 
-            draw_channel_list(ui, &channels);
+            draw_channel_list(ui, &self.channels, self.current_channel);
         });
     }
 }
