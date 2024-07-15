@@ -1,3 +1,0 @@
-[submodule "deps/kitc"]
-	path = deps/kitc
-	url = https://github.com/AutodidactsHaven/kitc.git
