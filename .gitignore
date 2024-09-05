@@ -23,10 +23,6 @@
 *.so.*
 *.dylib
 
-# Added by cargo
-
-/target
-
 # Our additions
 *.sqlite-journal
 *.db
