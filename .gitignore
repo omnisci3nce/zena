@@ -26,3 +26,4 @@
 # Our additions
 *.sqlite-journal
 *.db
+*.bin
