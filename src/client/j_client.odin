@@ -6,7 +6,6 @@ import "core:net"
 import "core:os"
 import "core:strconv"
 
-
 main :: proc() {
 	if (len(os.args) < 2) {
 		fmt.printf("Usage: %s <server port>\n", os.args[0])

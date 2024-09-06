@@ -1,5 +1,6 @@
-package zena
+package server
 
+import "../zena"
 import "core:fmt"
 import "core:net"
 import "core:os"
