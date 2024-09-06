@@ -58,8 +58,15 @@ core_run :: proc(core: ^Core, socket: net.TCP_Socket) {
 	send_request_messages(socket)
 	response, timeout_err := try_receive_message(socket) // blocking receive -> we're looking for the
 
-	core.messages = fetch_all()
-	core.ui.messages = core.messages[:]
+	switch data in response {
+	case Message:
+		fmt.println("Warning: expected AllMessages but got Message")
+	case AllMessages:
+		{
+			core.messages = data.messages
+			core.ui.messages = core.messages[:] // the UI state only gets a slice rather than the owned data
+		}
+	}
 
 	for {
 		core_tick(core)
@@ -151,14 +158,5 @@ fetch_all :: proc() -> [dynamic]Message {
 
 @(test)
 test_receive_message :: proc(t: ^testing.T) {
-
+	// TODO: figure out how we can test Core and message parsing, etc
 }
-
-// --- Entrypoint
-
-// main :: proc() {
-//   core: Core
-
-//   // start the core
-//   core_run(&core)
-// }
