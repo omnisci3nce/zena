@@ -2,6 +2,7 @@
 
 package zena
 
+import "core:encoding/endian"
 import "core:encoding/json"
 import "core:fmt"
 import "core:net"
@@ -110,11 +111,9 @@ try_receive_message :: proc(socket: net.TCP_Socket) -> (resp: NetworkMsg, err: C
 	n_bytes, net_err := net.recv_tcp(socket, recv_buf[:]) // TODO: handle error
 	fmt.printf("Received %d bytes!\n", n_bytes)
 
-	u32_scratch: [4]u8
-	copy_slice(u32_scratch[:], recv_buf[0:4])
-	msg_type := transmute(u32)u32_scratch
-	copy_slice(u32_scratch[:], recv_buf[4:8])
-	length := transmute(u32)u32_scratch
+	msg_type := endian.unchecked_get_u32le(recv_buf[0:4])
+	length := endian.unchecked_get_u32le(recv_buf[4:8])
+
 	fmt.printf("Msg ID %d Length %d\n", msg_type, length)
 
 	if MsgType(msg_type) == MsgType.Comms_AllMessages {
