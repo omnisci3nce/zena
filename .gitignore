@@ -27,5 +27,6 @@
 *.sqlite-journal
 *.db
 *.bin
+bin/
 
 *.pdb
