@@ -21,9 +21,12 @@ AllMessages :: struct {
 	messages: [dynamic]Message,
 }
 
+ReqMessages :: struct {}
+
 NetworkMsg :: union {
 	Message,
 	AllMessages,
+	ReqMessages,
 }
 
 CommsErr :: union {
@@ -63,9 +66,19 @@ core_run :: proc(core: ^Core, socket: net.TCP_Socket) {
 		fmt.println("Warning: expected AllMessages but got Message")
 	case AllMessages:
 		{
+			for msg in data.messages {
+				fmt.printf(
+					"\tID %d - Author %s - Contents '%s'\n",
+					msg.msg_id,
+					msg.author,
+					msg.contents,
+				)
+			}
 			core.messages = data.messages
 			core.ui.messages = core.messages[:] // the UI state only gets a slice rather than the owned data
 		}
+	case ReqMessages:
+		fmt.println("Got ReqMessages")
 	}
 
 	for {
@@ -123,22 +136,23 @@ try_receive_message :: proc(socket: net.TCP_Socket) -> (resp: NetworkMsg, err: C
 
 	fmt.printf("Msg ID %d Length %d\n", msg_type, length)
 
-	if MsgType(msg_type) == MsgType.Comms_AllMessages {
+	switch MsgType(msg_type) {
+	case MsgType.Comms_AllMessages:
 		all: AllMessages
 		json_err := json.unmarshal(recv_buf[8:], &all)
 		fmt.printf("Got %d Messages from the server\n", len(all.messages))
-		for msg in all.messages {
-			fmt.printf(
-				"\tID %d - Author %s - Contents '%s'\n",
-				msg.msg_id,
-				msg.author,
-				msg.contents,
-			)
-		}
 		return NetworkMsg(all), nil
-	} else {
-		return NetworkMsg{}, CommsErr("Oh no")
+	case MsgType.Comms_NewMessage:
+		new_msg: Message
+		json_err := json.unmarshal(recv_buf[8:], &new_msg)
+		return NetworkMsg(new_msg), nil
+	case MsgType.Comms_ReqMessages:
+		return NetworkMsg(ReqMessages{}), nil
+	case:
+		fmt.printf("Unhandled msg type\n")
 	}
+
+	return NetworkMsg{}, CommsErr("Oh no")
 }
 
 // Fetches all the messages
