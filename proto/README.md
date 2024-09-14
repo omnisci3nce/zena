@@ -1,0 +1,1 @@
+Protobuf files and generated bindings. This module is used by both client and server.
