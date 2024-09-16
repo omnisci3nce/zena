@@ -17,7 +17,10 @@ Non-goals (subject to change):
 
 ## how to run
 
-Currently, the steps for my (Josh) test code is
-
-- `node testserver.js`
-- `odin run bin/j_client.odin -file -- 3000`
+**compiling protobufs**
+```
+protoc proto/*.proto \
+    --go_out=. \
+    --go_opt=paths=source_relative \
+    --proto_path=
+```
