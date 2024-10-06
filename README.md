@@ -1,6 +1,6 @@
 # Zena
 
-Lightweight messenging (as in chat) server and client.
+Lightweight messenging (as in chat) server. Clients will come in later.
 
 ## goals
 
@@ -9,7 +9,7 @@ Goals:
 - simple setup and compilation to make contributing easy
 - lightweight
 - support screenshare (maybe via OBS somehow?)
-- simple GUI
+- simple client guis
 
 Non-goals (subject to change):
 
