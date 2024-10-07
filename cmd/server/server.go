@@ -11,8 +11,8 @@ import (
 func main() {
 	fmt.Println("Server started")
 
-	log.Println("Starting listening on port 8080")
-	port := ":8080"
+	log.Println("Starting listening on port 50051")
+	port := ":50051"
 
 	listener, err := net.Listen("tcp", port)
 	if err != nil {

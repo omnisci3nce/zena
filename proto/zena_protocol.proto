@@ -8,7 +8,7 @@ message Message {
   string channel_id = 2;
   string author = 3; // UUID
   string content = 4;
-  int64 created_at = 5; // Linux epoch
+  int64 server_timestamp = 5; // Linux epoch
 }
 
 // Used when the user sends a message and we must store it server-side
@@ -18,13 +18,21 @@ message NewMessage {
   int64 timestamp = 3;
 }
 
-service Messenging {
-  rpc SendNewMessage (NewMessage) returns (Message);
-  rpc SubscribeChannels (ChannelList) returns (stream Message);
+message Channel {
+  string channel_id = 1;
+  string name = 2;
 }
 
-message ChannelList {
-  repeated string channel_id = 1;
+message Empty {}
+
+service Messenging {
+  rpc GetChannels (Empty) returns (stream Channel);
+  rpc SendNewMessage (NewMessage) returns (Message);
+  rpc SubscribeToChannels (ChannelIdList) returns (stream Message);
+}
+
+message ChannelIdList {
+  repeated string channel_ids = 1;
 }
 
 message LoginDetails {
