@@ -21,7 +21,7 @@ func newMessengingService(db *sql.DB) MessengingService {
 }
 
 func (m *MessengingService) SendNewMessage(ctx context.Context, msg *proto.NewMessage) (*proto.Message, error) {
-	log.Printf("Received a new message")
+	log.Printf("Received a new message from client")
 
 	// Prepare the SQL statement
 	stmt, err := m.db.PrepareContext(ctx, `
@@ -33,7 +33,7 @@ func (m *MessengingService) SendNewMessage(ctx context.Context, msg *proto.NewMe
 	}
 	defer stmt.Close()
 
-	result, err := stmt.ExecContext(ctx, msg.Content, msg.AuthorId) // time.Now()
+	result, err := stmt.ExecContext(ctx, msg.Content, msg.AuthorId) // TODO: timestamps time.Now()
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Failed to insert message: %v", err)
 	}
@@ -52,15 +52,13 @@ func (m *MessengingService) SendNewMessage(ctx context.Context, msg *proto.NewMe
 }
 
 func (m *MessengingService) GetChannels(_req *proto.Empty, stream grpc.ServerStreamingServer[proto.Channel]) error {
-	var chans [2]proto.Channel
-	chans[0].ChannelId = "abcd"
-	chans[0].Name = "General"
-
-	chans[1].ChannelId = "efgh"
-	chans[1].Name = "Gaming"
-
-	stream.Send(&chans[0])
-	stream.Send(&chans[1])
+	chans := []proto.Channel{
+		{ChannelId: "abcd", Name: "General"},
+		{ChannelId: "efgh", Name: "Gaming"},
+	}
+	for _, ch := range chans {
+		stream.Send(&ch)
+	}
 
 	return nil
 }
