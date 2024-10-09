@@ -5,17 +5,17 @@ option go_package = "github.com/omnisci3nce/zena/proto";
 
 message Message {
   string msg_id = 1;
-  string channel_id = 2;
-  string author = 3; // UUID
-  string content = 4;
-  int64 server_timestamp = 5; // Linux epoch
+  // string channel_id = 2;
+  string author = 2; // UUID
+  string content = 3;
+  // int64 server_timestamp = 5; // Linux epoch
 }
 
 // Used when the user sends a message and we must store it server-side
 message NewMessage {
-  string channel_id = 1; // UUID
+    string author_id = 1;
   string content = 2;
-  int64 timestamp = 3;
+  // int64 timestamp = 3;
 }
 
 message Channel {
@@ -26,6 +26,7 @@ message Channel {
 message Empty {}
 
 service Messenging {
+  rpc GetMessages (Empty) returns (stream Message);
   rpc GetChannels (Empty) returns (stream Channel);
   rpc SendNewMessage (NewMessage) returns (Message);
   rpc SubscribeToChannels (ChannelIdList) returns (stream Message);

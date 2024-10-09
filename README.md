@@ -24,4 +24,4 @@ Non-goals (subject to change):
 
 ## how to run
 
-`go run cmd/server/server.go `
+`go run cmd/server/server.go`

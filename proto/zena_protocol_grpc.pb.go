@@ -19,6 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	Messenging_GetMessages_FullMethodName         = "/messaging.Messenging/GetMessages"
 	Messenging_GetChannels_FullMethodName         = "/messaging.Messenging/GetChannels"
 	Messenging_SendNewMessage_FullMethodName      = "/messaging.Messenging/SendNewMessage"
 	Messenging_SubscribeToChannels_FullMethodName = "/messaging.Messenging/SubscribeToChannels"
@@ -28,6 +29,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MessengingClient interface {
+	GetMessages(ctx context.Context, in *Empty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Message], error)
 	GetChannels(ctx context.Context, in *Empty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Channel], error)
 	SendNewMessage(ctx context.Context, in *NewMessage, opts ...grpc.CallOption) (*Message, error)
 	SubscribeToChannels(ctx context.Context, in *ChannelIdList, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Message], error)
@@ -41,9 +43,28 @@ func NewMessengingClient(cc grpc.ClientConnInterface) MessengingClient {
 	return &messengingClient{cc}
 }
 
+func (c *messengingClient) GetMessages(ctx context.Context, in *Empty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Message], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &Messenging_ServiceDesc.Streams[0], Messenging_GetMessages_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[Empty, Message]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Messenging_GetMessagesClient = grpc.ServerStreamingClient[Message]
+
 func (c *messengingClient) GetChannels(ctx context.Context, in *Empty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Channel], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Messenging_ServiceDesc.Streams[0], Messenging_GetChannels_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Messenging_ServiceDesc.Streams[1], Messenging_GetChannels_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +93,7 @@ func (c *messengingClient) SendNewMessage(ctx context.Context, in *NewMessage, o
 
 func (c *messengingClient) SubscribeToChannels(ctx context.Context, in *ChannelIdList, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Message], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Messenging_ServiceDesc.Streams[1], Messenging_SubscribeToChannels_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Messenging_ServiceDesc.Streams[2], Messenging_SubscribeToChannels_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,6 +114,7 @@ type Messenging_SubscribeToChannelsClient = grpc.ServerStreamingClient[Message]
 // All implementations must embed UnimplementedMessengingServer
 // for forward compatibility.
 type MessengingServer interface {
+	GetMessages(*Empty, grpc.ServerStreamingServer[Message]) error
 	GetChannels(*Empty, grpc.ServerStreamingServer[Channel]) error
 	SendNewMessage(context.Context, *NewMessage) (*Message, error)
 	SubscribeToChannels(*ChannelIdList, grpc.ServerStreamingServer[Message]) error
@@ -106,6 +128,9 @@ type MessengingServer interface {
 // pointer dereference when methods are called.
 type UnimplementedMessengingServer struct{}
 
+func (UnimplementedMessengingServer) GetMessages(*Empty, grpc.ServerStreamingServer[Message]) error {
+	return status.Errorf(codes.Unimplemented, "method GetMessages not implemented")
+}
 func (UnimplementedMessengingServer) GetChannels(*Empty, grpc.ServerStreamingServer[Channel]) error {
 	return status.Errorf(codes.Unimplemented, "method GetChannels not implemented")
 }
@@ -135,6 +160,17 @@ func RegisterMessengingServer(s grpc.ServiceRegistrar, srv MessengingServer) {
 	}
 	s.RegisterService(&Messenging_ServiceDesc, srv)
 }
+
+func _Messenging_GetMessages_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(Empty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(MessengingServer).GetMessages(m, &grpc.GenericServerStream[Empty, Message]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Messenging_GetMessagesServer = grpc.ServerStreamingServer[Message]
 
 func _Messenging_GetChannels_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(Empty)
@@ -189,6 +225,11 @@ var Messenging_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "GetMessages",
+			Handler:       _Messenging_GetMessages_Handler,
+			ServerStreams: true,
+		},
 		{
 			StreamName:    "GetChannels",
 			Handler:       _Messenging_GetChannels_Handler,
